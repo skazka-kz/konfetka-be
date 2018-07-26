@@ -42,4 +42,4 @@ UserSchema.pre("save", async function save(next) {
   next();
 });
 
-export default model<IUserDocument>("User", UserSchema);
+export default model("User", UserSchema);
