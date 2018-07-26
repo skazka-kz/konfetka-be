@@ -1,6 +1,5 @@
 import { Document } from "mongoose";
 
-export type comparePasswordFunction = (candidatePassword: string) => Promise<boolean>;
 export type IUserDocument = Document & {
   email: string;
   password: string;
@@ -14,3 +13,5 @@ export type IUserDocument = Document & {
 
   comparePassword: comparePasswordFunction;
 };
+
+export type comparePasswordFunction = (candidatePassword: string) => Promise<boolean>;
