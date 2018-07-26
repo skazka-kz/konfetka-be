@@ -1,6 +1,8 @@
 import * as bcrypt from "bcryptjs";
 import { model, Schema } from "mongoose";
 
+import IUserDocument from "../interfaces/UserDocument";
+
 const UserSchema: Schema = new Schema({
   email: {
     type: String,
@@ -21,18 +23,23 @@ const UserSchema: Schema = new Schema({
     type: Boolean,
     default: false
   },
-  createdAt: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
   updatedAt: Date
 });
 
-// Not using fat arrow notation to preserve 'this'
+// Not using fat arrow notation to preserve 'this' scope
 UserSchema.pre("save", async function save(next) {
-  if (!this.isModified("password")) {
+  const user = this as IUserDocument;
+  if (!user.isModified("password")) {
     return next();
   }
 
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  user.password = await bcrypt.hash(user.password, salt);
+  next();
 });
 
-export default model("User", UserSchema);
+export default model<IUserDocument>("User", UserSchema);
