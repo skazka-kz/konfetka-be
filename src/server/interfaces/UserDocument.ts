@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
 
 export type comparePasswordFunction = (candidatePassword: string) => Promise<boolean>;
-export interface IUserDocument extends Document {
+export type IUserDocument = Document & {
   email: string;
   password: string;
   passwordResetToken: string;
@@ -13,4 +13,4 @@ export interface IUserDocument extends Document {
   editedAt: Date;
 
   comparePassword: comparePasswordFunction;
-}
+};

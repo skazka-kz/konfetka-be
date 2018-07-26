@@ -18,7 +18,7 @@ const testUri = process.env.TEST_MONGO_URI;
       keys.mongoUri,
       { useNewUrlParser: true }
     );
-    logger.info("Connected to MongoDB test instance");
+    // logger.info("Connected to MongoDB test instance");
   } catch (e) {
     logger.error(
       `Error connecting to MongoDB test instance: ${e.code}, ${e.message}`

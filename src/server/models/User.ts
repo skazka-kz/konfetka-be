@@ -50,4 +50,4 @@ const comparePassword: comparePasswordFunction = async function(candidatePasswor
 
 UserSchema.methods.comparePassword = comparePassword;
 
-export default model("User", UserSchema);
+export default model<IUserDocument>("User", UserSchema);
