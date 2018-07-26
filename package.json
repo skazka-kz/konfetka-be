@@ -1,0 +1,86 @@
+{
+  "name": "typescript-fullstack-starter",
+  "version": "0.0.1",
+  "description": "TS-React-Node starter",
+  "main": "index.js",
+  "scripts": {
+    "server:debug": "node --inspect=5858 -r ts-node/register src/server/index.ts",
+    "dev:server": "./node_modules/nodemon/bin/nodemon.js",
+    "dev:client": "parcel ./src/client/index.html",
+    "dev": "concurrently 'yarn dev:server' 'yarn dev:client'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean-dist": "rm -rf dist/*",
+    "build:server": "tsc -p ./src/server",
+    "build:client": "parcel build ./src/client/index.html --out-dir './dist/client' --public-url '/'",
+    "build": "yarn clean-dist && yarn build:server && yarn build:client"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{ts,tsx}",
+      "<rootDir>/src/**/?(*.)(spec|test).{ts,tsx}"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.ts"
+  },
+  "repository": "git@github.com:slavabez/typescript-fullstack-starter.git",
+  "author": "Slava Bezgachev <bezgachev@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/cookie-session": "^2.0.34",
+    "@types/dotenv": "^4.0.3",
+    "axios": "^0.18.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "cookie-session": "^2.0.0-beta.3",
+    "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "helmet": "^3.12.1",
+    "mongoose": "^5.2.4",
+    "passport": "^0.4.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-router": "^4.3.1",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2",
+    "winston": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/bcryptjs": "^2.4.1",
+    "@types/body-parser": "^1.17.0",
+    "@types/compression": "^0.0.36",
+    "@types/cors": "^2.8.4",
+    "@types/enzyme": "^3.1.12",
+    "@types/enzyme-adapter-react-16": "^1.0.2",
+    "@types/express": "^4.16.0",
+    "@types/helmet": "^0.0.38",
+    "@types/jest": "^23.3.0",
+    "@types/mongoose": "^5.2.0",
+    "@types/passport": "^0.4.5",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^16.0.6",
+    "@types/winston": "^2.3.9",
+    "concurrently": "^3.6.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "jest": "^23.4.1",
+    "nodemon": "^1.18.3",
+    "parcel-bundler": "^1.9.7",
+    "parcel-plugin-typescript": "^1.0.0",
+    "ts-jest": "^23.0.1",
+    "ts-loader": "^4.4.2",
+    "ts-node": "^7.0.0",
+    "webpack": "^4.16.1"
+  }
+}
