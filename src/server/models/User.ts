@@ -1,7 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import { model, Schema } from "mongoose";
 
-import IUserDocument from "../interfaces/UserDocument";
+import { comparePasswordFunction, IUserDocument } from "../interfaces/UserDocument";
 
 const UserSchema: Schema = new Schema({
   email: {
@@ -13,6 +13,7 @@ const UserSchema: Schema = new Schema({
     type: String,
     select: false
   },
+  passwordResetToken: String,
   fullName: String,
   nickName: String,
   isAdmin: {
@@ -41,5 +42,12 @@ UserSchema.pre("save", async function save(next) {
   user.password = await bcrypt.hash(user.password, salt);
   next();
 });
+
+// tslint:disable-next-line:only-arrow-functions
+const comparePassword: comparePasswordFunction = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+UserSchema.methods.comparePassword = comparePassword;
 
 export default model("User", UserSchema);
