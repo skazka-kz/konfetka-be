@@ -1,5 +1,3 @@
-import * as bcrypt from "bcryptjs";
-import * as mongoose from "mongoose";
 import * as passport from "passport";
 import * as passportLocal from "passport-local";
 import { IUserDocument } from "../interfaces/UserDocument";

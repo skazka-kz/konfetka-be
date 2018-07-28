@@ -9,6 +9,8 @@ import * as passport from "passport";
 import { Logger } from "winston";
 import keys from "./helpers/keys";
 import logger from "./helpers/Logger";
+import ErrorHandler from "./middlewares/errorHandler";
+import "./services/passport";
 
 class Server {
   public app: express.Application;
@@ -86,6 +88,8 @@ class Server {
     this.app.use(cors(corsOptions));
 
     this.app.use(compression());
+
+    this.app.use(ErrorHandler);
   }
 
   public routes(): void {
@@ -100,7 +104,6 @@ class Server {
       this.logger.info(`Express server listening on port ${PORT}`);
     });
   }
-
 }
 
 export default Server;

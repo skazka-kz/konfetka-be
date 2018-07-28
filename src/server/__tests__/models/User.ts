@@ -58,7 +58,9 @@ describe("User mongoose model tests:", () => {
 
     await user.save();
 
-    const passwordComparison = await user.comparePassword("This is a wrong password");
+    const passwordComparison = await user.comparePassword(
+      "This is a wrong password"
+    );
     expect(passwordComparison).toBeFalsy();
   });
 });
