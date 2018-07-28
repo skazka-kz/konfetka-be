@@ -5,6 +5,7 @@ import * as cors from "cors";
 import * as express from "express";
 import * as helmet from "helmet";
 import * as mongoose from "mongoose";
+import * as passport from "passport";
 import { Logger } from "winston";
 import keys from "./helpers/keys";
 import logger from "./helpers/Logger";
@@ -64,6 +65,10 @@ class Server {
         name: "session"
       })
     );
+
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
+
     let corsOptions: object;
     switch (env) {
       case "production":
@@ -96,7 +101,6 @@ class Server {
     });
   }
 
-  public stop(): void {}
 }
 
 export default Server;

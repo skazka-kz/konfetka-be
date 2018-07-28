@@ -1,6 +1,7 @@
 import { Document } from "mongoose";
 
 export type IUserDocument = Document & {
+  id: string;
   email: string;
   password: string;
   passwordResetToken: string;
