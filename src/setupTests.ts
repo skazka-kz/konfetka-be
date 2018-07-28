@@ -16,7 +16,7 @@ configure({ adapter: new Adapter() });
     // logger.info("Connected to MongoDB test instance");
   } catch (e) {
     logger.error(
-      `Error connecting to MongoDB test instance: ${e.code}, ${e.message}`
+      `Error connecting to MongoDB test instance: Code: ${e.code}, Message: ${e.message}`
     );
   }
 })();

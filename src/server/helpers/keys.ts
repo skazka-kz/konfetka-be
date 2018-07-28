@@ -18,8 +18,8 @@ if (
   process.env.NODE_ENV === "ci"
 ) {
   keys = {
-    cookieKey: process.env.COOKIE_KEY,
-    mongoUri: process.env.MONGO_URI
+    cookieKey: (process.env.COOKIE_KEY) ? process.env.COOKIE_KEY : process.env.TEST_COOKIE_KEY,
+    mongoUri: (process.env.MONGO_URI) ? process.env.MONGO_URI : process.env.TEST_MONGO_URI
   };
 } else if (process.env.NODE_ENV === "test") {
   keys = {
