@@ -22,7 +22,6 @@ class Server {
     this.configure();
     this.connect();
     this.routes();
-    this.start();
   }
 
   public connect() {

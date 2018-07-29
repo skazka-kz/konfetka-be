@@ -42,7 +42,7 @@ describe("User mongoose model tests:", () => {
     expect(userOne.password === userTwo.password).toBeFalsy();
   });
 
-  test("User password comparison successfully authenticates a right password", async () => {
+  test("User password comparison successfully checks a right password", async () => {
     const user = createSampleUser();
     user.password = "This is a password";
 
