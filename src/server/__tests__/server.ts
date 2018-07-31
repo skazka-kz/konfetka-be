@@ -22,4 +22,5 @@ describe("Server App tests", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.message).toBe("Pong");
   });
+
 });

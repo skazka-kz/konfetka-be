@@ -10,6 +10,7 @@ import { Logger } from "winston";
 import keys from "./helpers/keys";
 import logger from "./helpers/Logger";
 import ErrorHandler from "./middlewares/errorHandler";
+import ping from "./routers/Ping";
 import userRouter from "./routers/UserRouter";
 import "./services/passport";
 
@@ -95,9 +96,7 @@ class Server {
   public routes(): void {
     const router: express.Router = express.Router();
 
-    router.get("/ping", (req: express.Request, res: express.Response) => {
-      return { message: "Pong" };
-    });
+    router.get("/ping", ping);
 
     this.app.use("/", router);
     this.app.use("/api/v1/users", userRouter);
