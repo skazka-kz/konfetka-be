@@ -15,4 +15,11 @@ export type IUserDocument = Document & {
   comparePassword: comparePasswordFunction;
 };
 
+export interface IUserProps {
+  email: string;
+  fullName?: string;
+  nickName?: string;
+  password: string;
+}
+
 export type comparePasswordFunction = (candidatePassword: string) => Promise<boolean>;

@@ -1,13 +1,6 @@
 import { Request, Response, Router } from "express";
-import { IUserDocument } from "../interfaces/UserDocument";
+import { IUserDocument, IUserProps } from "../interfaces/UserDocument";
 import User from "../models/User";
-
-interface IUserProps {
-  email: string;
-  fullName?: string;
-  nickName?: string;
-  password: string;
-}
 
 class UserRouter {
   /**

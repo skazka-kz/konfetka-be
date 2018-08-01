@@ -34,10 +34,14 @@ class Server {
           keys.mongoUri,
           { useNewUrlParser: true }
         );
-        logger.info("Connected to MongoDB");
+        if (process.env.DEBUG) {
+          logger.info("Connected to MongoDB");
+        }
       } catch (e) {
         logger.error(
-          `Error connecting to MongoDB instance: ${e.code}, ${e.message}`
+          `Error connecting to MongoDB instance: Code: ${e.code}, Message: ${
+            e.message
+          }`
         );
       }
     })();
@@ -45,7 +49,13 @@ class Server {
 
   public configure(): void {
     const env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
-    this.logger.info(`Configuring the server for the ${env} environment...`);
+    if (process.env.DEBUG) {
+      this.logger.info(`Configuring the server for the ${env} environment...`);
+      this.logger.info(
+        `The cookie key starts with ${keys.cookieKey.substr(0, 2)}`
+      );
+    }
+
     // Helmet for basic security for Express
     this.app.use(helmet());
 
@@ -55,10 +65,6 @@ class Server {
         extended: false,
         limit: "10mb"
       })
-    );
-
-    this.logger.info(
-      `The cookie key starts with ${keys.cookieKey.substr(0, 2)}`
     );
 
     this.app.use(
