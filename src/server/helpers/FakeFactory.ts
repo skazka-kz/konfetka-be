@@ -5,6 +5,7 @@ export function createSampleUser(email?: string) {
   return new User({
     fullName: `${faker.name.firstName()} ${faker.name.lastName()}`,
     email: email ? email : faker.internet.email(),
-    nickName: faker.internet.userName()
+    nickName: faker.internet.userName(),
+    password: faker.internet.password()
   });
 }

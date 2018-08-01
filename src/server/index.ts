@@ -1,4 +1,4 @@
 import Server from "./server";
 
-const s = new Server();
-s.connect();
+const app = new Server();
+app.start();

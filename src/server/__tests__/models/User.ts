@@ -11,7 +11,6 @@ let request: supertest.SuperTest<supertest.Test>;
 
 describe("User tests, both Mongoose model and REST API", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     app = new Server().app;
     request = supertest(app);
   });
@@ -19,6 +18,10 @@ describe("User tests, both Mongoose model and REST API", () => {
   afterEach(() => {
     app = undefined;
     request = undefined;
+  });
+
+  afterAll(async () => {
+    const result = await User.deleteMany({});
   });
 
   //#region User Model tests
@@ -89,18 +92,30 @@ describe("User tests, both Mongoose model and REST API", () => {
 
     const response = await request.get("/api/v1/users");
     const data = response.body;
-    expect(data.length).toBe(2);
+    expect(response.status).toBe(200);
+    expect(data.length).toBeGreaterThanOrEqual(2);
     expect(data[0]._id === userOne._id || data[0]._id === userTwo._id);
   });
 
-  test("POST /users/ creates a user and saves to DB", async () => {
+  test.only("POST /users/ creates a user and saves to DB", async () => {
     const params: IUserProps = {
       email: "valid@email.com",
       password: "StrongPassword",
       fullName: "Jacob"
     };
-    
+
     const response = await request.post("/api/v1/users").send(params);
-    console.log(response);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toBe(params.email);
+    expect(response.body.password).toBeFalsy();
+    expect(response.body.fullName).toBe(params.fullName);
+
+    const id = response.body._id;
+    const loadedFromDb = await User.findById(id);
+
+    expect(loadedFromDb.email).toBe(params.email);
+    expect(loadedFromDb.fullName).toBe(params.fullName);
+    expect(loadedFromDb.password).toBeFalsy();
   });
 });

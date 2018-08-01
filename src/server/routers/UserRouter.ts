@@ -21,7 +21,7 @@ class UserRouter {
         }
 
         const newUser = new User(up);
-        newUser.save();
+        await newUser.save();
         // Hide password from the response
         newUser.password = undefined;
         resolve(newUser);
@@ -31,7 +31,7 @@ class UserRouter {
     });
   }
 
-  public static validateEmail(email) {
+  public static validateEmail(email: string) {
     // tslint:disable-next-line:max-line-length
     const regEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return regEx.test(String(email).toLowerCase());
@@ -54,7 +54,7 @@ class UserRouter {
     return res.send(user);
   }
   public async CreateUser(req: Request, res: Response) {
-    const { email, password, fullName, nickName }: any = req.params;
+    const { email, password, fullName, nickName }: any = req.body;
 
     const user = new User({
       email,
@@ -70,8 +70,12 @@ class UserRouter {
       return res.status(400).send({ message: e.message });
     }
   }
-  public UpdateUser(req: Request, res: Response) {}
-  public DeleteUser(req: Request, res: Response) {}
+  public UpdateUser(req: Request, res: Response) {
+    res.send({ message: "Coming soon" });
+  }
+  public DeleteUser(req: Request, res: Response) {
+    res.send({ message: "Coming soon" });
+  }
 
   public routes() {
     this.router.get("/", this.GetUsers);
