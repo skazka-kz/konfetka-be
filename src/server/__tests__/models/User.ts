@@ -2,7 +2,7 @@ import { Application } from "express";
 import "jest";
 import supertest = require("supertest");
 import { createSampleUser } from "../../helpers/FakeFactory";
-import { IUserProps } from "../../interfaces/UserDocument";
+import { IUserProps, IUserUpdateProps } from "../../interfaces/UserDocument";
 import User from "../../models/User";
 import Server from "../../server";
 
@@ -97,7 +97,19 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(data[0]._id === userOne._id || data[0]._id === userTwo._id);
   });
 
-  test.only("POST /users/ creates a user and saves to DB", async () => {
+  test("GET /users/:id gets the user by ID", async () => {
+    const user = createSampleUser();
+    await user.save();
+
+    const response = await request.get(`/api/v1/users/${user._id}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toBe(user.email);
+    expect(response.body.nickName).toBe(user.nickName);
+    expect(response.body.password).toBeFalsy();
+  });
+
+  test("POST /users/ creates a user and saves to DB", async () => {
     const params: IUserProps = {
       email: "valid@email.com",
       password: "StrongPassword",
@@ -111,11 +123,47 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(response.body.password).toBeFalsy();
     expect(response.body.fullName).toBe(params.fullName);
 
-    const id = response.body._id;
-    const loadedFromDb = await User.findById(id);
+    const loadedFromDb = await User.findById(response.body._id);
 
     expect(loadedFromDb.email).toBe(params.email);
     expect(loadedFromDb.fullName).toBe(params.fullName);
     expect(loadedFromDb.password).toBeFalsy();
+  });
+
+  test("PUT /users/:id updates the user in the DB", async () => {
+    const user = createSampleUser();
+    await user.save();
+
+    const updated: IUserUpdateProps = {
+      email: "updated@email.com",
+      fullName: "Updated Name",
+      nickName: "updated.nick"
+    };
+
+    const response = await request
+      .put(`/api/v1/users/${user._id}`)
+      .send(updated);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toBe(updated.email);
+    expect(response.body.fullName).toBe(updated.fullName);
+    expect(response.body.nickName).toBe(updated.nickName);
+
+    const loadedFromDb = await User.findById(user._id);
+
+    expect(loadedFromDb.email).toBe(updated.email);
+    expect(loadedFromDb.fullName).toBe(updated.fullName);
+    expect(loadedFromDb.nickName).toBe(updated.nickName);
+  });
+
+  test("DELETE /users/:id removes the user from the DB", async () => {
+    const user = createSampleUser();
+    await user.save();
+
+    const response = await request.delete(`/api/v1/users/${user._id}`);
+    expect(response.status).toBe(200);
+
+    const loaded = await User.findById(user._id);
+    expect(loaded).toBeFalsy();
   });
 });

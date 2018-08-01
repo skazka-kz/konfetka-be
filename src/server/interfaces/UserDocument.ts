@@ -22,4 +22,10 @@ export interface IUserProps {
   password: string;
 }
 
+export interface IUserUpdateProps {
+  email?: string;
+  fullName?: string;
+  nickName?: string;
+}
+
 export type comparePasswordFunction = (candidatePassword: string) => Promise<boolean>;
