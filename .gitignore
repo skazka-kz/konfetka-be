@@ -65,3 +65,4 @@ config/dev.json
 dist
 .cache
 .directory
+.idea
