@@ -1,8 +1,23 @@
 import { Request, Response, Router } from "express";
-import { IUserDocument, IUserProps } from "../interfaces/UserDocument";
+import {
+  IUserDocument,
+  IUserProps,
+  IUserUpdateProps
+} from "../interfaces/UserDocument";
 import User from "../models/User";
 
 class UserRouter {
+
+  public static deleteUser(id: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await User.findByIdAndRemove(id);
+        resolve(true);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
   /**
    * Validates and creates a new user, saves to Mongoose
    * @param up IUserProps: object with the values for a new user
@@ -25,6 +40,35 @@ class UserRouter {
         // Hide password from the response
         newUser.password = undefined;
         resolve(newUser);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  public static updateUser(
+    id: string,
+    up: IUserUpdateProps
+  ): Promise<IUserDocument> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!id) {
+          reject("Error: No user ID specified");
+        }
+        if (up.email && !UserRouter.validateEmail(up.email)) {
+          reject("Error: Invalid email format");
+        }
+
+        // Filtering out, in case there are rogue values like password
+        const updatedValues: IUserUpdateProps = {
+          email: up.email,
+          fullName: up.fullName,
+          nickName: up.nickName
+        };
+
+        await User.findByIdAndUpdate(id, updatedValues);
+        const updatedUser = await User.findById(id);
+        resolve(updatedUser);
       } catch (e) {
         reject(e);
       }
@@ -54,7 +98,7 @@ class UserRouter {
     return res.send(user);
   }
   public async CreateUser(req: Request, res: Response) {
-    const { email, password, fullName, nickName }: any = req.body;
+    const { email, password, fullName, nickName }: IUserProps = req.body;
 
     const user = new User({
       email,
@@ -70,19 +114,38 @@ class UserRouter {
       return res.status(400).send({ message: e.message });
     }
   }
-  public UpdateUser(req: Request, res: Response) {
-    res.send({ message: "Coming soon" });
+  public async UpdateUser(req: Request, res: Response) {
+    const { email, nickName, fullName }: IUserUpdateProps = req.body;
+    const { id } = req.params;
+
+    try {
+      const result = await UserRouter.updateUser(id, {
+        email,
+        nickName,
+        fullName
+      });
+      res.send(result);
+    } catch (e) {
+      res.status(400).send({ message: e });
+    }
   }
-  public DeleteUser(req: Request, res: Response) {
-    res.send({ message: "Coming soon" });
+  public async DeleteUser(req: Request, res: Response) {
+    const { id } = req.params;
+
+    try {
+      const isSuccess = await UserRouter.deleteUser(id);
+      return res.send({ message: "User successfully deleted"} );
+    } catch (e) {
+      return res.status(400).send(e);
+    }
   }
 
   public routes() {
     this.router.get("/", this.GetUsers);
-    this.router.get("/:username", this.GetUser);
+    this.router.get("/:id", this.GetUser);
     this.router.post("/", this.CreateUser);
-    this.router.put("/:username", this.UpdateUser);
-    this.router.delete("/:username", this.DeleteUser);
+    this.router.put("/:id", this.UpdateUser);
+    this.router.delete("/:id", this.DeleteUser);
   }
 }
 

@@ -81,8 +81,9 @@ describe("User tests, both Mongoose model and REST API", () => {
     );
     expect(passwordComparison).toBeFalsy();
   });
-  //#endregion
+  // #endregion
 
+  // #region Basic functionality with good parameters
   test("GET /users/ gets a list of all users", async () => {
     const userOne = createSampleUser();
     const userTwo = createSampleUser();
@@ -166,4 +167,6 @@ describe("User tests, both Mongoose model and REST API", () => {
     const loaded = await User.findById(user._id);
     expect(loaded).toBeFalsy();
   });
+
+  //#endregion
 });
