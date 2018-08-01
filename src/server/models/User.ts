@@ -11,7 +11,8 @@ const UserSchema: Schema = new Schema({
   },
   password: {
     type: String,
-    select: false
+    select: false,
+    required: true
   },
   passwordResetToken: String,
   fullName: String,

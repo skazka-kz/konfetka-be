@@ -7,10 +7,13 @@ import {
 import User from "../models/User";
 
 class UserRouter {
-
   public static deleteUser(id: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
+        const user = await User.findById(id);
+        if (!user) {
+          reject("Error: User with such ID does not exist");
+        }
         await User.findByIdAndRemove(id);
         resolve(true);
       } catch (e) {
@@ -95,6 +98,11 @@ class UserRouter {
   public async GetUser(req: Request, res: Response) {
     const { id }: any = req.params;
     const user = await User.findById(id);
+    if (!user) {
+      return res
+        .status(400)
+        .send({ message: "Error: User with such ID does not exist" });
+    }
     return res.send(user);
   }
   public async CreateUser(req: Request, res: Response) {
@@ -111,7 +119,9 @@ class UserRouter {
       const createdUser = await UserRouter.registerUser(user);
       return res.send(createdUser);
     } catch (e) {
-      return res.status(400).send({ message: e.message });
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
     }
   }
   public async UpdateUser(req: Request, res: Response) {
@@ -126,7 +136,7 @@ class UserRouter {
       });
       res.send(result);
     } catch (e) {
-      res.status(400).send({ message: e });
+      res.status(400).send({ message: "Error retrieving user data" });
     }
   }
   public async DeleteUser(req: Request, res: Response) {
@@ -134,9 +144,11 @@ class UserRouter {
 
     try {
       const isSuccess = await UserRouter.deleteUser(id);
-      return res.send({ message: "User successfully deleted"} );
+      return res.send({ message: "User successfully deleted" });
     } catch (e) {
-      return res.status(400).send(e);
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
     }
   }
 
