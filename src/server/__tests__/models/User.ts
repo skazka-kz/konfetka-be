@@ -193,7 +193,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(response.body.message).toBe("Error: Invalid email format");
   });
 
-  test.only("POST /users/ with missing parameters returns meaningful errors", async () => {
+  test("POST /users/ with missing parameters returns meaningful errors", async () => {
     const noEmailProps: any = {
       password: "A password",
       fullName: "Some name"
@@ -212,4 +212,17 @@ describe("User tests, both Mongoose model and REST API", () => {
   });
 
   // #endregion
+
+  test ("PUT /users/:id with no invalid email returns a meaningful error", async () => {
+    const user = createSampleUser();
+    await user.save();
+
+    const updateProps: IUserUpdateProps = {
+      email: "notavalidemail.com"
+    };
+
+    const response = await request.put(`/api/v1/users/${user._id}`).send(updateProps);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Error: Invalid email format");
+  });
 });

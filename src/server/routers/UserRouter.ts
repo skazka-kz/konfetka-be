@@ -136,7 +136,9 @@ class UserRouter {
       });
       res.send(result);
     } catch (e) {
-      res.status(400).send({ message: "Error retrieving user data" });
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
     }
   }
   public async DeleteUser(req: Request, res: Response) {
