@@ -2,7 +2,6 @@ import { Document } from "mongoose";
 
 export type IProductDocument = Document & {
   title: string;
-  // TODO: Change to the category type
   category?: string;
   description?: string;
   weight?: string;

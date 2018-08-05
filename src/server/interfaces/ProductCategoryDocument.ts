@@ -6,6 +6,6 @@ export type IProductCategoryDocument = Document & {
   products?: [object]
 };
 
-export interface IProductProps {
+export interface IProductCategoryProps {
   title: string;
 }
