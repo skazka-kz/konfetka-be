@@ -84,7 +84,7 @@ describe("User tests, both Mongoose model and REST API", () => {
   // #endregion
 
   // #region Basic functionality with good parameters
-  test("GET /users/ gets a list of all users", async () => {
+  test.skip("GET /users/ gets a list of all users", async () => {
     const userOne = createSampleUser();
     const userTwo = createSampleUser();
 
@@ -98,7 +98,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(data[0]._id === userOne._id || data[0]._id === userTwo._id);
   });
 
-  test("GET /users/:id gets the user by ID", async () => {
+  test.skip("GET /users/:id gets the user by ID", async () => {
     const user = createSampleUser();
     await user.save();
 
@@ -110,7 +110,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(response.body.password).toBeFalsy();
   });
 
-  test("POST /users/ creates a user and saves to DB", async () => {
+  test.skip("POST /users/ creates a user and saves to DB", async () => {
     const params: IUserProps = {
       email: "valid@email.com",
       password: "StrongPassword",
@@ -131,7 +131,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(loadedFromDb.password).toBeFalsy();
   });
 
-  test("PUT /users/:id updates the user in the DB", async () => {
+  test.skip("PUT /users/:id updates the user in the DB", async () => {
     const user = createSampleUser();
     await user.save();
 
@@ -157,7 +157,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(loadedFromDb.nickName).toBe(updated.nickName);
   });
 
-  test("DELETE /users/:id removes the user from the DB", async () => {
+  test.skip("DELETE /users/:id removes the user from the DB", async () => {
     const user = createSampleUser();
     await user.save();
 
@@ -171,19 +171,19 @@ describe("User tests, both Mongoose model and REST API", () => {
   // #endregion
 
   // #region Odd cases, testing halding errors
-  test("DELETE /users/:id returns a proper error when quering a non-existent user", async () => {
+  test.skip("DELETE /users/:id returns a proper error when quering a non-existent user", async () => {
     const response = await request.delete("/api/v1/users/507f191e810c19729de860ea");
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Error: User with such ID does not exist");
   });
 
-  test("GET /users/:id returns a proper error when querying a non-existent user", async () => {
+  test.skip("GET /users/:id returns a proper error when querying a non-existent user", async () => {
     const response = await request.get("/api/v1/users/507f191e810c19729de860ea");
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Error: User with such ID does not exist");
   });
 
-  test("POST /users/ with wrong email returns a meaningful error", async () => {
+  test.skip("POST /users/ with wrong email returns a meaningful error", async () => {
     const props: IUserProps = {
       email: "wrongemail.com",
       password: "A password"
@@ -193,7 +193,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     expect(response.body.message).toBe("Error: Invalid email format");
   });
 
-  test("POST /users/ with missing parameters returns meaningful errors", async () => {
+  test.skip("POST /users/ with missing parameters returns meaningful errors", async () => {
     const noEmailProps: any = {
       password: "A password",
       fullName: "Some name"
@@ -213,7 +213,7 @@ describe("User tests, both Mongoose model and REST API", () => {
 
   // #endregion
 
-  test ("PUT /users/:id with no invalid email returns a meaningful error", async () => {
+  test.skip("PUT /users/:id with no invalid email returns a meaningful error", async () => {
     const user = createSampleUser();
     await user.save();
 
