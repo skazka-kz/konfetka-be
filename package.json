@@ -29,7 +29,8 @@
       "js",
       "json"
     ],
-    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.ts"
+    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.ts",
+    "testEnvironment": "node"
   },
   "repository": "git@github.com:slavabez/typescript-fullstack-starter.git",
   "author": "Slava Bezgachev <bezgachev@gmail.com>",

@@ -1,15 +1,12 @@
 {
   "version": "0.2.0",
   "configurations": [
-    
     {
       "type": "node",
-      "name": "vscode-jest-tests",
+      "name": "Debug all Jest tests",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": [
-        "--runInBand"
-      ],
+      "args": ["--runInBand"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
@@ -21,6 +18,15 @@
       "port": 5858,
       "restart": true,
       "protocol": "inspector"
-}
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest current file",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${relativeFile}"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
   ]
 }
