@@ -41,6 +41,20 @@
       "outFiles": [
         "${workspaceRoot}/build/**/*"
 ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Tests",
+      "preLaunchTask": "pre-test",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--runInBand"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/dist/**/*"
+      ]
     }
   ]
 }

@@ -19,6 +19,11 @@
         "kind": "test",
         "isDefault": true
       }
+    },
+    {
+      "type": "npm",
+      "script": "build:tests",
+      "identifier": "pre-test"
     }
   ]
 }
