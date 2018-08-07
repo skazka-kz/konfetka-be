@@ -6,7 +6,11 @@
       "name": "Debug all Jest tests",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": ["--runInBand"],
+      "args": [
+        "--runInBand",
+        "--coverage",
+        "false"
+      ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
@@ -24,9 +28,19 @@
       "request": "launch",
       "name": "Debug Jest current file",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["${relativeFile}"],
+      "args": [
+        "${relativeFile}",
+        "--runInBand",
+        "--coverage",
+        "false"
+      ],
+      "preLaunchTask": "build",
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/build/**/*"
+]
     }
   ]
 }
