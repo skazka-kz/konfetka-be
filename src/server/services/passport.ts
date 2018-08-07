@@ -26,6 +26,8 @@ passport.use(
       const user = await User.findOne({ email: email.toLowerCase() }).select(
         "+password"
       );
+
+      console.log(password, email);
       if (!user) {
         return done(null, false);
       }

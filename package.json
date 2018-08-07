@@ -8,20 +8,21 @@
     "dev:server": "./node_modules/nodemon/bin/nodemon.js",
     "dev:client": "parcel ./src/client/index.html",
     "dev": "concurrently 'yarn dev:server' 'yarn dev:client'",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "clean-dist": "rm -rf dist/*",
-    "build:server": "tsc -p ./src/server",
+    "test": "jest --no-cache",
+    "test:watch": "jest --watch --no-cache",
+    "build:tests": "rm -rf dist/__tests__ && tsc -p ./src/server/__tests__",
+    "clean": "rm -rf dist/*",
+    "build:server": "tsc -p ./src/server --pretty",
     "build:client": "parcel build ./src/client/index.html --out-dir './dist/client' --public-url '/'",
-    "build": "yarn clean-dist && yarn build:server && yarn build:client"
+    "build": "yarn build:server && yarn build:client",
+    "prebuild": "yarn clean"
   },
   "jest": {
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{ts,tsx}",
-      "<rootDir>/src/**/?(*.)(spec|test).{ts,tsx}"
+      "<rootDir>/dist/__tests__/**/*.js"
     ],
     "moduleFileExtensions": [
       "ts",

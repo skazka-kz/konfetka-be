@@ -45,3 +45,7 @@ class AuthRouter {
     })(req, res, next);
   }
 }
+
+const au = new AuthRouter();
+
+export default au.router;

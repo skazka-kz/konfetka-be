@@ -5,10 +5,9 @@
     "module": "commonjs",
     "importHelpers": true,
     "allowJs": true,
-    "outDir": "../../dist",
+    "outDir": "../../../dist",
     "lib": ["es6", "dom"],
     "moduleResolution": "node",
     "types": ["node"]
-  },
-  "files": ["./index.ts"]
+  }
 }

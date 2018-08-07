@@ -8,12 +8,12 @@ import Server from "../../server";
 let app: Application;
 let request: supertest.SuperTest<supertest.Test>;
 let user: any;
-let originalPassport: string;
+let originalPassword: string;
 
 describe("User tests, both Mongoose model and REST API", () => {
   beforeAll(async () => {
     user = createSampleUser();
-    originalPassport = user.password;
+    originalPassword = user.password;
     await user.save();
   });
 
@@ -22,7 +22,20 @@ describe("User tests, both Mongoose model and REST API", () => {
     request = supertest(app);
   });
 
+  afterEach(() => {
+    app = undefined;
+    request = undefined;
+  });
+
   test("POST /login with the correct credentials returns the right response + cookies", async () => {
     // Send POST to /login
+    const loginProps = {
+      email: user.email,
+      password: originalPassword
+    };
+
+    const response = await request.post("/api/v1/auth/login").send(loginProps);
+
+    expect(response.status).toBe(200);
   });
 });
