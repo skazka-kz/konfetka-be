@@ -8,7 +8,7 @@
     "dev:server": "./node_modules/nodemon/bin/nodemon.js",
     "dev:client": "parcel ./src/client/index.html",
     "dev": "concurrently 'yarn dev:server' 'yarn dev:client'",
-    "test": "jest --no-cache --coverage",
+    "test": "jest --no-cache --coverage --forceExit --verbose",
     "test:watch": "jest --watch --no-cache",
     "build:tests": "rm -rf dist/__tests__ && tsc -p ./src/server/__tests__",
     "clean": "rm -rf dist/*",
