@@ -35,7 +35,7 @@ describe("User tests, both Mongoose model and REST API", () => {
     };
 
     const response = await request.post("/api/v1/auth/login").send(loginProps);
-
+    const red = null;
     expect(response.status).toBe(200);
   });
 });
