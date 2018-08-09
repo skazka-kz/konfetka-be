@@ -6,7 +6,7 @@ module.exports = {
   },
   moduleFileExtensions: ["ts", "js"],
   transform: {
-    "^.+\\.(ts|tsx)$": "./node_modules/ts-jest/preprocessor.js"
+    "^.+\\.(ts|tsx)$": "ts-jest"
   },
   testMatch: ["**/__tests__/**/*.(ts|js)"],
   testEnvironment: "node"
