@@ -30,10 +30,6 @@ describe("User tests, both Mongoose model and REST API", () => {
     await newUser.save();
     const loadedFromDb = await User.findById(newUser._id);
 
-    const copy = loadedFromDb;
-
-    const red = "";
-
     expect(newUser._id).toEqual(loadedFromDb._id);
     expect(newUser.fullName).toEqual(loadedFromDb.fullName);
   });
