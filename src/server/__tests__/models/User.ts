@@ -30,6 +30,10 @@ describe("User tests, both Mongoose model and REST API", () => {
     await newUser.save();
     const loadedFromDb = await User.findById(newUser._id);
 
+    const copy = loadedFromDb;
+
+    const red = "";
+
     expect(newUser._id).toEqual(loadedFromDb._id);
     expect(newUser.fullName).toEqual(loadedFromDb.fullName);
   });
@@ -172,15 +176,23 @@ describe("User tests, both Mongoose model and REST API", () => {
 
   // #region Odd cases, testing halding errors
   test.skip("DELETE /users/:id returns a proper error when quering a non-existent user", async () => {
-    const response = await request.delete("/api/v1/users/507f191e810c19729de860ea");
+    const response = await request.delete(
+      "/api/v1/users/507f191e810c19729de860ea"
+    );
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Error: User with such ID does not exist");
+    expect(response.body.message).toBe(
+      "Error: User with such ID does not exist"
+    );
   });
 
   test.skip("GET /users/:id returns a proper error when querying a non-existent user", async () => {
-    const response = await request.get("/api/v1/users/507f191e810c19729de860ea");
+    const response = await request.get(
+      "/api/v1/users/507f191e810c19729de860ea"
+    );
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Error: User with such ID does not exist");
+    expect(response.body.message).toBe(
+      "Error: User with such ID does not exist"
+    );
   });
 
   test.skip("POST /users/ with wrong email returns a meaningful error", async () => {
@@ -206,7 +218,9 @@ describe("User tests, both Mongoose model and REST API", () => {
       email: "valid@email.com",
       fullName: "Some name"
     };
-    const noPassResponse = await request.post("/api/v1/users").send(noPasswordProps);
+    const noPassResponse = await request
+      .post("/api/v1/users")
+      .send(noPasswordProps);
     expect(noPassResponse.status).toBe(400);
     expect(noPassResponse.body.message).toBe("Error: No password provided");
   });
@@ -221,7 +235,9 @@ describe("User tests, both Mongoose model and REST API", () => {
       email: "notavalidemail.com"
     };
 
-    const response = await request.put(`/api/v1/users/${user._id}`).send(updateProps);
+    const response = await request
+      .put(`/api/v1/users/${user._id}`)
+      .send(updateProps);
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Error: Invalid email format");
   });
