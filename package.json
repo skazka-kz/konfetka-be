@@ -76,16 +76,24 @@
     "webpack": "^4.16.1"
   },
   "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "server/**/*.{ts,tsx}"
+    ],
     "moduleFileExtensions": [
       "ts",
-      "js"
+      "js",
+      "tsx",
+      "jsx"
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },
     "testMatch": [
-      "**/__tests__/**/*.(ts|js)"
+      "**/__tests__/**/*.(ts|js|tsx|jsx)",
+      "**/?(*.)(spec|test).ts?(x)"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.ts"
   }
 }

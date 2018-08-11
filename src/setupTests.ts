@@ -4,6 +4,8 @@ import * as mongoose from "mongoose";
 import keys from "./server/helpers/keys";
 import logger from "./server/helpers/Logger";
 
+jest.setTimeout(30000);
+
 configure({ adapter: new Adapter() });
 
 (async () => {
