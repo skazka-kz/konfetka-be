@@ -27,7 +27,6 @@ passport.use(
         "+password"
       );
 
-      console.log(password, email);
       if (!user) {
         return done(null, false);
       }

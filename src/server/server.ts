@@ -10,6 +10,7 @@ import { Logger } from "winston";
 import keys from "./helpers/keys";
 import logger from "./helpers/Logger";
 import ErrorHandler from "./middlewares/errorHandler";
+import AuthRouter from "./routers/AuthRouter";
 import ping from "./routers/Ping";
 import userRouter from "./routers/UserRouter";
 import "./services/passport";
@@ -106,6 +107,7 @@ class Server {
 
     this.app.use("/", router);
     this.app.use("/api/v1/users", userRouter);
+    this.app.use("/api/v1/auth", AuthRouter);
   }
 
   public start(): void {

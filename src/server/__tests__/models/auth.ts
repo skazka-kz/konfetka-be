@@ -27,15 +27,14 @@ describe("User tests, both Mongoose model and REST API", () => {
     request = undefined;
   });
 
-  test("POST /login with the correct credentials returns the right response + cookies", async (done) => {
+  test("POST /login with the correct credentials returns the right response + cookies", async () => {
     // Send POST to /login
     const loginProps = {
-      email: user.email,
+      username: user.email,
       password: originalPassword
     };
 
     const response = await request.post("/api/v1/auth/login").send(loginProps);
     expect(response.status).toBe(200);
-    done();
   });
 });
