@@ -4,7 +4,7 @@ import {
   IUserProps,
   IUserUpdateProps
 } from "../interfaces/UserDocument";
-import { requireAdminRights } from "../middlewares/requireLogin";
+import { requireAdminRights, requireLogin } from "../middlewares/requireLogin";
 import User from "../models/User";
 
 class UserRouter {
@@ -156,7 +156,7 @@ class UserRouter {
   }
 
   public routes() {
-    this.router.get("/", requireAdminRights, this.GetUsers);
+    this.router.get("/", requireLogin, this.GetUsers);
     this.router.get("/:id", requireAdminRights, this.GetUser);
     this.router.post("/", requireAdminRights, this.CreateUser);
     this.router.put("/:id", requireAdminRights, this.UpdateUser);

@@ -12,7 +12,7 @@ class AuthRouter {
   public routes(): void {
     this.router.post("/login", this.login);
     this.router.post("/logout", this.logout);
-    this.router.post("/user", this.getCurrentUser);
+    this.router.get("/user", this.getCurrentUser);
   }
   private logout(req: Request, res: Response): void {
     req.logout();

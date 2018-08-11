@@ -83,158 +83,194 @@ describe("User tests, both Mongoose model and REST API", () => {
   });
   // #endregion
 
-  // #region Basic functionality with good parameters
-  test.skip("GET /users/ gets a list of all users", async () => {
-    const userOne = createSampleUser();
-    const userTwo = createSampleUser();
+  describe("User tests that require authentication", () => {
+    //#region Basic functionality with good parameters
+    let authCookies;
+    beforeAll(async () => {
+      const user = createSampleUser();
+      const originalPassword = user.password;
+      // Make sure the user is an Admin
+      user.isAdmin = true;
+      await user.save();
 
-    await userOne.save();
-    await userTwo.save();
+      const loginProps = {
+        username: user.email,
+        password: originalPassword
+      };
 
-    const response = await request.get("/api/v1/users");
-    const data = response.body;
-    expect(response.status).toBe(200);
-    expect(data.length).toBeGreaterThanOrEqual(2);
-    expect(data[0]._id === userOne._id || data[0]._id === userTwo._id);
-  });
+      const response = await supertest(new Server().app)
+        .post("/api/v1/auth/login")
+        .send(loginProps);
+      authCookies = response.header["set-cookie"];
+    });
 
-  test.skip("GET /users/:id gets the user by ID", async () => {
-    const user = createSampleUser();
-    await user.save();
+    test("GET /users/ gets a list of all users", async () => {
+      const userOne = createSampleUser();
+      const userTwo = createSampleUser();
 
-    const response = await request.get(`/api/v1/users/${user._id}`);
+      await userOne.save();
+      await userTwo.save();
 
-    expect(response.status).toBe(200);
-    expect(response.body.email).toBe(user.email);
-    expect(response.body.nickName).toBe(user.nickName);
-    expect(response.body.password).toBeFalsy();
-  });
+      const req = request.get("/api/v1/users");
+      req.cookies = authCookies;
+      const response = await req;
+      const data = response.body;
+      expect(response.status).toBe(200);
+      expect(data.length).toBeGreaterThanOrEqual(2);
+      expect(data[0]._id === userOne._id || data[0]._id === userTwo._id);
+    });
 
-  test.skip("POST /users/ creates a user and saves to DB", async () => {
-    const params: IUserProps = {
-      email: "valid@email.com",
-      password: "StrongPassword",
-      fullName: "Jacob"
-    };
+    test("GET /users/:id gets the user by ID", async () => {
+      const user = createSampleUser();
+      await user.save();
 
-    const response = await request.post("/api/v1/users").send(params);
+      const req = request.get(`/api/v1/users/${user._id}`);
+      req.cookies = authCookies;
+      const response = await req;
 
-    expect(response.status).toBe(200);
-    expect(response.body.email).toBe(params.email);
-    expect(response.body.password).toBeFalsy();
-    expect(response.body.fullName).toBe(params.fullName);
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(user.email);
+      expect(response.body.nickName).toBe(user.nickName);
+      expect(response.body.password).toBeFalsy();
+    });
 
-    const loadedFromDb = await User.findById(response.body._id);
+    test("POST /users/ creates a user and saves to DB", async () => {
+      const params: IUserProps = {
+        email: "valid@email.com",
+        password: "StrongPassword",
+        fullName: "Jacob"
+      };
 
-    expect(loadedFromDb.email).toBe(params.email);
-    expect(loadedFromDb.fullName).toBe(params.fullName);
-    expect(loadedFromDb.password).toBeFalsy();
-  });
+      const req = request.post("/api/v1/users").send(params);
+      req.cookies = authCookies;
+      const response = await req;
 
-  test.skip("PUT /users/:id updates the user in the DB", async () => {
-    const user = createSampleUser();
-    await user.save();
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(params.email);
+      expect(response.body.password).toBeFalsy();
+      expect(response.body.fullName).toBe(params.fullName);
 
-    const updated: IUserUpdateProps = {
-      email: "updated@email.com",
-      fullName: "Updated Name",
-      nickName: "updated.nick"
-    };
+      const loadedFromDb = await User.findById(response.body._id);
 
-    const response = await request
-      .put(`/api/v1/users/${user._id}`)
-      .send(updated);
+      expect(loadedFromDb.email).toBe(params.email);
+      expect(loadedFromDb.fullName).toBe(params.fullName);
+      expect(loadedFromDb.password).toBeFalsy();
+    });
 
-    expect(response.status).toBe(200);
-    expect(response.body.email).toBe(updated.email);
-    expect(response.body.fullName).toBe(updated.fullName);
-    expect(response.body.nickName).toBe(updated.nickName);
+    test("PUT /users/:id updates the user in the DB", async () => {
+      const user = createSampleUser();
+      await user.save();
 
-    const loadedFromDb = await User.findById(user._id);
+      const updated: IUserUpdateProps = {
+        email: "updated@email.com",
+        fullName: "Updated Name",
+        nickName: "updated.nick"
+      };
 
-    expect(loadedFromDb.email).toBe(updated.email);
-    expect(loadedFromDb.fullName).toBe(updated.fullName);
-    expect(loadedFromDb.nickName).toBe(updated.nickName);
-  });
+      const req = request.put(`/api/v1/users/${user._id}`).send(updated);
+      req.cookies = authCookies;
+      const response = await req;
 
-  test.skip("DELETE /users/:id removes the user from the DB", async () => {
-    const user = createSampleUser();
-    await user.save();
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(updated.email);
+      expect(response.body.fullName).toBe(updated.fullName);
+      expect(response.body.nickName).toBe(updated.nickName);
 
-    const response = await request.delete(`/api/v1/users/${user._id}`);
-    expect(response.status).toBe(200);
+      const loadedFromDb = await User.findById(user._id);
 
-    const loaded = await User.findById(user._id);
-    expect(loaded).toBeFalsy();
-  });
+      expect(loadedFromDb.email).toBe(updated.email);
+      expect(loadedFromDb.fullName).toBe(updated.fullName);
+      expect(loadedFromDb.nickName).toBe(updated.nickName);
+    });
 
-  // #endregion
+    test("DELETE /users/:id removes the user from the DB", async () => {
+      const user = createSampleUser();
+      await user.save();
 
-  // #region Odd cases, testing halding errors
-  test.skip("DELETE /users/:id returns a proper error when quering a non-existent user", async () => {
-    const response = await request.delete(
-      "/api/v1/users/507f191e810c19729de860ea"
-    );
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "Error: User with such ID does not exist"
-    );
-  });
+      const req = request.delete(`/api/v1/users/${user._id}`);
+      req.cookies = authCookies;
+      const response = await req;
 
-  test.skip("GET /users/:id returns a proper error when querying a non-existent user", async () => {
-    const response = await request.get(
-      "/api/v1/users/507f191e810c19729de860ea"
-    );
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "Error: User with such ID does not exist"
-    );
-  });
+      expect(response.status).toBe(200);
+      const loaded = await User.findById(user._id);
+      expect(loaded).toBeFalsy();
+    });
 
-  test.skip("POST /users/ with wrong email returns a meaningful error", async () => {
-    const props: IUserProps = {
-      email: "wrongemail.com",
-      password: "A password"
-    };
-    const response = await request.post("/api/v1/users").send(props);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Error: Invalid email format");
-  });
+    // #endregion
 
-  test.skip("POST /users/ with missing parameters returns meaningful errors", async () => {
-    const noEmailProps: any = {
-      password: "A password",
-      fullName: "Some name"
-    };
-    const response = await request.post("/api/v1/users").send(noEmailProps);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Error: No email provided");
+    //#region Odd cases, testing handling errors
+    test("DELETE /users/:id returns a proper error when quering a non-existent user", async () => {
+      const req = request.delete("/api/v1/users/507f191e810c19729de860ea");
+      req.cookies = authCookies;
+      const response = await req;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Error: User with such ID does not exist"
+      );
+    });
 
-    const noPasswordProps: any = {
-      email: "valid@email.com",
-      fullName: "Some name"
-    };
-    const noPassResponse = await request
-      .post("/api/v1/users")
-      .send(noPasswordProps);
-    expect(noPassResponse.status).toBe(400);
-    expect(noPassResponse.body.message).toBe("Error: No password provided");
-  });
+    test("GET /users/:id returns a proper error when querying a non-existent user", async () => {
+      const req = request.get("/api/v1/users/507f191e810c19729de860ea");
+      req.cookies = authCookies;
+      const response = await req;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Error: User with such ID does not exist"
+      );
+    });
 
-  // #endregion
+    test("POST /users/ with wrong email returns a meaningful error", async () => {
+      const props: IUserProps = {
+        email: "wrongemail.com",
+        password: "A password"
+      };
 
-  test.skip("PUT /users/:id with no invalid email returns a meaningful error", async () => {
-    const user = createSampleUser();
-    await user.save();
+      const req = request.post("/api/v1/users").send(props);
+      req.cookies = authCookies;
+      const response = await req;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Error: Invalid email format");
+    });
 
-    const updateProps: IUserUpdateProps = {
-      email: "notavalidemail.com"
-    };
+    test("POST /users/ with missing parameters returns meaningful errors", async () => {
+      const noEmailProps: any = {
+        password: "A password",
+        fullName: "Some name"
+      };
+      const req = request.post("/api/v1/users").send(noEmailProps);
+      req.cookies = authCookies;
+      const response = await req;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Error: No email provided");
 
-    const response = await request
-      .put(`/api/v1/users/${user._id}`)
-      .send(updateProps);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Error: Invalid email format");
+      const noPasswordProps: any = {
+        email: "valid@email.com",
+        fullName: "Some name"
+      };
+      const noPassReq = request.post("/api/v1/users").send(noPasswordProps);
+      noPassReq.cookies = authCookies;
+      const noPassResponse = await noPassReq;
+      expect(noPassResponse.status).toBe(400);
+      expect(noPassResponse.body.message).toBe("Error: No password provided");
+    });
+
+    test("PUT /users/:id with no invalid email returns a meaningful error", async () => {
+      const user = createSampleUser();
+      await user.save();
+
+      const updateProps: IUserUpdateProps = {
+        email: "notavalidemail.com"
+      };
+
+      const req = request
+        .put(`/api/v1/users/${user._id}`)
+        .send(updateProps);
+      req.cookies = authCookies;
+      const response = await req;
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Error: Invalid email format");
+    });
+
+    // #endregion
   });
 });
