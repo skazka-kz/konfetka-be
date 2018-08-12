@@ -85,7 +85,7 @@ describe("User tests, both Mongoose model and REST API", () => {
 
   describe("User tests that require authentication", () => {
     //#region Basic functionality with good parameters
-    let authCookies;
+    let authCookies: any;
     beforeAll(async () => {
       const user = createSampleUser();
       const originalPassword = user.password;

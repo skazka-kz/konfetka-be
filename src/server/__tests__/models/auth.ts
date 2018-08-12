@@ -88,24 +88,49 @@ describe("User tests, both Mongoose model and REST API", () => {
   });
 
   test("GET to /user when logged in returns the current user", async () => {
-    // Use separate supertest instance so not to interfere with other tests
-    const sSuperTest = supertest(new Server().app);
-
     // Login and make a note of the session token and session signature
     const loginProps = {
       username: user.email,
       password: originalPassword
     };
 
-    const loginResponse = await sSuperTest
+    const loginResponse = await request
       .post("/api/v1/auth/login")
       .send(loginProps);
     const sessionCookies = loginResponse.header["set-cookie"];
-    const req = sSuperTest.get("/api/v1/auth/user");
+    const req = request.get("/api/v1/auth/user");
     req.cookies = sessionCookies;
     const response = await req;
     expect(response.status).toBe(200);
     expect(response.body.email).toBe(user.email);
     expect(response.body._id).toBe(user.id);
+  });
+
+  test("GET /logout when not logged in returns a meaningful error", async () => {
+    const response = await request.get("/api/v1/auth/logout");
+    expect(response.status).toBe(403);
+    expect(response.body.message).toBe("Error: Not logged in");
+  });
+
+  test("GET /logout when logged in successfully ends session", async () => {
+    const loginProps = {
+      username: user.email,
+      password: originalPassword
+    };
+
+    const login = await request.post("/api/v1/auth/login").send(loginProps);
+    const authCookies = login.header["set-cookie"];
+
+    const logoutReq = request.get("/api/v1/auth/logout");
+    logoutReq.cookies = authCookies;
+    const logout = await logoutReq;
+    expect(logout.status).toBe(200);
+    expect(logout.body.message).toBe("Logged out");
+
+    const afterReq = request.get("/api/v1/auth/user");
+    afterReq.cookies = authCookies;
+    const after = await afterReq;
+    expect(after.status).toBe(403);
+    expect(after.body.message).toBe("Error: Not logged in");
   });
 });

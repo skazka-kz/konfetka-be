@@ -11,12 +11,16 @@ class AuthRouter {
 
   public routes(): void {
     this.router.post("/login", this.login);
-    this.router.post("/logout", this.logout);
+    this.router.get("/logout", this.logout);
     this.router.get("/user", this.getCurrentUser);
   }
   private logout(req: Request, res: Response): void {
-    req.logout();
-    res.send({ message: "Logged out" });
+    if (req.user) {
+      req.logout();
+      res.send({ message: "Logged out" });
+    } else {
+      res.status(403).send({ message: "Error: Not logged in" });
+    }
   }
   private getCurrentUser(req: Request, res: Response): void {
     if (req.user) {
