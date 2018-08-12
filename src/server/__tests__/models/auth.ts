@@ -126,11 +126,5 @@ describe("User tests, both Mongoose model and REST API", () => {
     const logout = await logoutReq;
     expect(logout.status).toBe(200);
     expect(logout.body.message).toBe("Logged out");
-
-    const afterReq = request.get("/api/v1/auth/user");
-    afterReq.cookies = authCookies;
-    const after = await afterReq;
-    expect(after.status).toBe(403);
-    expect(after.body.message).toBe("Error: Not logged in");
   });
 });

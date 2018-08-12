@@ -17,7 +17,8 @@ class AuthRouter {
   private logout(req: Request, res: Response): void {
     if (req.user) {
       req.logout();
-      res.send({ message: "Logged out" });
+      req.session = null;
+      res.send({ message: "Logged out" }).clearCookie("session").clearCookie("session.sig");
     } else {
       res.status(403).send({ message: "Error: Not logged in" });
     }
