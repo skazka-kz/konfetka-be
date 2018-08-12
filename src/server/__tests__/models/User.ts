@@ -262,9 +262,7 @@ describe("User tests, both Mongoose model and REST API", () => {
         email: "notavalidemail.com"
       };
 
-      const req = request
-        .put(`/api/v1/users/${user._id}`)
-        .send(updateProps);
+      const req = request.put(`/api/v1/users/${user._id}`).send(updateProps);
       req.cookies = authCookies;
       const response = await req;
       expect(response.status).toBe(400);
@@ -272,5 +270,43 @@ describe("User tests, both Mongoose model and REST API", () => {
     });
 
     // #endregion
+  });
+
+  describe("Make sure protected routes require authentication", () => {
+    test("GET /users not publicly accessible", async () => {
+      const response = await request.get("/api/v1/users");
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe("Error: Not logged in or insufficient privileges");
+    });
+
+    test("GET /users/:id not publicly accessible", async () => {
+      const response = await request.get("/api/v1/users/someID");
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe("Error: Not logged in or insufficient privileges");
+    });
+
+    test("POST /users not publicly accessible", async () => {
+      const response = await request.post("/api/v1/users").send({
+        email: "some@email.com",
+        password: "somepass"
+      });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe("Error: Not logged in or insufficient privileges");
+    });
+
+    test("PUT /users/:id not publicly accessible", async () => {
+      const response = await request.put("/api/v1/users/someId").send({
+        email: "some@email.com",
+        password: "somepass"
+      });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe("Error: Not logged in or insufficient privileges");
+    });
+
+    test("DELETE /users/:id not publicly accessible", async () => {
+      const response = await request.delete("/api/v1/users/someID");
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe("Error: Not logged in or insufficient privileges");
+    });
   });
 });
