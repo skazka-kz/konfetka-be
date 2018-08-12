@@ -10,7 +10,7 @@ let request: supertest.SuperTest<supertest.Test>;
 let user: any;
 let originalPassword: string;
 
-describe("User tests, both Mongoose model and REST API", () => {
+describe("Authentication related tests", () => {
   beforeAll(async () => {
     user = createSampleUser();
     originalPassword = user.password;
