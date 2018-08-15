@@ -30,15 +30,15 @@ describe("Test suite for the Product model", () => {
       // Doesn't work if not assigned to a variable
       const result = await Product.deleteMany({});
     });
-    describe("Public routes", () => {
+    describe("Public setupRoutes", () => {
       test("GET /products gets a list of products", async () => {
         expect(true).toBeTruthy();
       });
     });
-    describe("Protected routes that require authentication", () => {
+    describe("Protected setupRoutes that require authentication", () => {
       let editorCookies: any;
       beforeAll(async () => {
-        // Create a user, login, save cookies. Send cookies for protected routes
+        // Create a user, login, save cookies. Send cookies for protected setupRoutes
         const user = createSampleUser();
         const originalPassword = user.password;
         user.isEditor = true;
@@ -51,6 +51,6 @@ describe("Test suite for the Product model", () => {
         editorCookies = authResponse.header["set-cookie"];
       });
     });
-    describe("Make sure protected routes are secured", () => {});
+    describe("Make sure protected setupRoutes are secured", () => {});
   });
 });

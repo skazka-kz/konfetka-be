@@ -274,7 +274,7 @@ describe("User tests, both Mongoose model and REST API", () => {
 
       // #endregion
     });
-    describe("Make sure protected routes require authentication", () => {
+    describe("Make sure protected setupRoutes require authentication", () => {
       test("GET /users not publicly accessible", async () => {
         const response = await request.get("/api/v1/users");
         expect(response.status).toBe(403);

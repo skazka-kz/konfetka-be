@@ -89,7 +89,7 @@ class UserRouter {
 
   constructor() {
     this.router = Router();
-    this.routes();
+    this.setupRoutes();
   }
 
   public async GetUsers(req: Request, res: Response) {
@@ -155,7 +155,7 @@ class UserRouter {
     }
   }
 
-  public routes() {
+  public setupRoutes() {
     this.router.get("/", requireLogin, this.GetUsers);
     this.router.get("/:id", requireAdminRights, this.GetUser);
     this.router.post("/", requireAdminRights, this.CreateUser);
@@ -165,6 +165,6 @@ class UserRouter {
 }
 
 const ur = new UserRouter();
-ur.routes();
+ur.setupRoutes();
 
 export default ur.router;
