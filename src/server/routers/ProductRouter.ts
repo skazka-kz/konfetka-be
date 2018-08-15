@@ -8,6 +8,19 @@ import {
 import Product from "../models/Product";
 
 class ProductRouter {
+  //#region
+  // 'Controller' functions
+
+  private static addProduct(productProps: IProductProps): Promise<IProductDocument> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // don't forget to extract images metadata
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+  //#endregion
   public router: Router;
 
   constructor() {
@@ -23,9 +36,30 @@ class ProductRouter {
 
   private async GetProduct(req: Request, res: Response) {
     const { id }: any = req.params;
+    const product = await Product.findById(id);
+    if (!product) {
+      return res
+        .status(400)
+        .send({ message: "Error: No product with such ID found" });
+    }
+    return res.send(product);
   }
 
-  private async CreateProduct(req: Request, res: Response) {}
+  private async CreateProduct(req: Request, res: Response) {
+    const {
+      category,
+      description,
+      price,
+      title,
+      weight
+    }: IProductProps = req.body;
+
+    try {
+      const createdProduct = new Product();
+    } catch (e) {
+      return res.status(400).send({ message: e.message ? e.message : e });
+    }
+  }
 
   private async UpdateProduct(req: Request, res: Response) {}
 

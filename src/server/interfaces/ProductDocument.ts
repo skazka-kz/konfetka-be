@@ -1,4 +1,5 @@
 import { Document } from "mongoose";
+import { IImageProps } from "./ImageDocument";
 
 export type IProductDocument = Document & {
   title: string;
