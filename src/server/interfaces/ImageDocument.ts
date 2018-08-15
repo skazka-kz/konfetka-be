@@ -14,8 +14,8 @@ export type IImageDocument = Document & {
 };
 
 export interface IImageProps {
-  title?: string;
-  path?: string;
+  title: string;
+  path: string;
   width?: number;
   height?: number;
   size?: number;
@@ -24,4 +24,11 @@ export interface IImageProps {
   thumbnailSize?: number;
   thumbnailWidth?: number;
   thumbnailHeight?: number;
+}
+
+export interface IImageMetaData {
+  title?: string;
+  width?: string;
+  height?: string;
+  size?: number;
 }

@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
 import {
   requireAdminRights,
@@ -11,10 +12,13 @@ class ProductRouter {
   //#region
   // 'Controller' functions
 
-  private static addProduct(productProps: IProductProps): Promise<IProductDocument> {
+  private static addProduct(
+    productProps: IProductProps,
+    images?: [IImageProps],
+    imagesMetadata?: [IImageMetaData]
+  ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
-        // don't forget to extract images metadata
       } catch (e) {
         reject(e);
       }
@@ -46,18 +50,28 @@ class ProductRouter {
   }
 
   private async CreateProduct(req: Request, res: Response) {
-    const {
-      category,
-      description,
-      price,
-      title,
-      weight
-    }: IProductProps = req.body;
-
     try {
-      const createdProduct = new Product();
+      const {
+        category,
+        description,
+        price,
+        title,
+        weight
+      }: IProductProps = JSON.parse(req.body.product);
+
+      const filesMetadata = req.body.filesMetadata;
+      const files = req.body.files;
+
+      try {
+        const createdProduct = new Product();
+      } catch (e) {
+        return res.status(400).send({ message: e.message ? e.message : e });
+      }
     } catch (e) {
-      return res.status(400).send({ message: e.message ? e.message : e });
+      // JSON parse error
+      return res
+        .status(400)
+        .send({ message: "Error: error parsing Product info" });
     }
   }
 

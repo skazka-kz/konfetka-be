@@ -29,4 +29,6 @@ const ProductSchema: Schema = new Schema({
   updatedAt: Date
 });
 
+ProductSchema.pre("save")
+
 export default model<IProductDocument>("Product", ProductSchema);

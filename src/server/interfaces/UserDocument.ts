@@ -10,7 +10,7 @@ export type IUserDocument = Document & {
   isAdmin: boolean;
   isEditor: boolean;
   createdAt: Date;
-  editedAt: Date;
+  updatedAt: Date;
 
   comparePassword: comparePasswordFunction;
 };

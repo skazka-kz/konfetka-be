@@ -37,6 +37,7 @@ const UserSchema: Schema = new Schema({
 // Not using fat arrow notation to preserve 'this' scope
 UserSchema.pre("save", async function save(next) {
   const user = this as IUserDocument;
+  user.updatedAt = new Date();
   if (!user.isModified("password")) {
     return next();
   }

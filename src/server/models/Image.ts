@@ -23,17 +23,6 @@ const ImageSchema: Schema = new Schema({
   updatedAt: Date
 });
 
-export interface IImageProps {
-  title: string;
-  path: string;
-  width?: number;
-  height?: number;
-  size?: number;
-  originalFileName?: string;
-  thumbnailUrl?: string;
-  thumbnailSize?: number;
-  thumbnailWidth?: number;
-  thumbnailHeight?: number;
-}
+
 
 export default model<IImageDocument>("Image", ImageSchema);
