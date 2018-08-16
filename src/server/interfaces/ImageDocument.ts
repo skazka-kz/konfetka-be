@@ -30,7 +30,7 @@ export interface IImageProps {
 
 export interface IImageMetaData {
   title?: string;
-  width?: string;
-  height?: string;
+  width?: number;
+  height?: number;
   size?: number;
 }

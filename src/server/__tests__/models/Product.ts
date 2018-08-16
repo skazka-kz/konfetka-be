@@ -9,6 +9,7 @@ import {
 import { IProductProps } from "../../interfaces/ProductDocument";
 import Product from "../../models/Product";
 import Server from "../../server";
+import { IImageMetaData } from "../../interfaces/ImageDocument";
 
 const app: Application = new Server().app;
 let request: supertest.SuperTest<supertest.Test>;
@@ -97,9 +98,11 @@ describe("Test suite for the Product model", () => {
       });
 
       test("POST /products creates a new product, without images", async () => {
-        const loginRes = await request.post("/api/v1/auth/login").send(editorCredentials);
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
         expect(loginRes.status).toBe(200);
-        //const cookies = loginRes.header["set-cookie"];
+        const cookies = loginRes.header["set-cookie"];
 
         const props: IProductProps = {
           title: "Some title",
@@ -108,10 +111,40 @@ describe("Test suite for the Product model", () => {
           weight: "Much weight wow"
         };
 
+        const files = [
+          "src/server/__tests__/assets/sample1",
+          "src/server/__tests__/assets/sample2",
+          "src/server/__tests__/assets/sample3"
+        ];
+        const filesMetadata: IImageMetaData[] = [
+          {
+            height: 183,
+            width: 275,
+            title: "A little bird",
+            size: 1337
+          },
+          {
+            height: 194,
+            width: 259,
+            title: "Some hot air balloons",
+            size: 13376
+          },
+          {
+            height: 278,
+            width: 181,
+            title: "A pretty river",
+            size: 9337
+          }
+        ];
+
         const req = request
           .post("/api/v1/products")
-          .field("product", JSON.stringify(props));
-        //req.cookies = cookies;
+          .field("product", JSON.stringify(props))
+          .field("filesMetadata", JSON.stringify(filesMetadata))
+          .attach("files", files[0])
+          .attach("files", files[1])
+          .attach("files", files[2]);
+        req.cookies = cookies;
         const response = await req;
 
         expect(response.status).toBe(200);
@@ -121,6 +154,10 @@ describe("Test suite for the Product model", () => {
         expect(loaded.title).toBe(props.title);
         expect(loaded.price).toBe(props.description);
         expect(loaded.weight).toBe(props.weight);
+
+        expect(loaded.frontImage.title).toBeTruthy();
+        expect(loaded.frontImage.path).toBeTruthy();
+        expect(loaded.images.length).toBe(2);
       });
     });
     describe("Make sure protected setupRoutes are secured", () => {});
