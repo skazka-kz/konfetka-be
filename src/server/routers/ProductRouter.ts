@@ -1,4 +1,7 @@
 import { Request, Response, Router } from "express";
+import * as multer from "multer";
+import keys from "../../../config/keys";
+import Validator from "../helpers/InputValidator";
 import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
 import {
@@ -7,6 +10,9 @@ import {
   requireLogin
 } from "../middlewares/requireLogin";
 import Product from "../models/Product";
+import {Validator} from "react";
+
+const upload = multer({ dest: keys.fileStorageFolder });
 
 class ProductRouter {
   //#region
@@ -14,11 +20,18 @@ class ProductRouter {
 
   private static addProduct(
     productProps: IProductProps,
-    images?: [IImageProps],
-    imagesMetadata?: [IImageMetaData]
+    images?: IImageProps[],
+    imagesMetadata?: IImageMetaData[]
   ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
+        // Start by validating the input data
+        let validatedProps: IProductProps = {
+          title: Validator.validateTitle(productProps.title),
+          price: Validator.validatePrice(productProps.price),
+          description: Validator.validateDescription(productProps.description),
+          weight: Validator.validateWeight(productProps.weight)
+        };
       } catch (e) {
         reject(e);
       }
@@ -63,8 +76,7 @@ class ProductRouter {
   private async CreateProduct(req: Request, res: Response) {
     try {
       const props: IProductProps = JSON.parse(req.body.product);
-
-      const filesMetadata = req.body.filesMetadata;
+      const filesMetadata: IImageMetaData = JSON.parse(req.body.filesMetadata);
       const files = req.body.files;
 
       try {

@@ -4,6 +4,7 @@ dotenv.config();
 interface IKeys {
   cookieKey: string;
   mongoUri: string;
+  fileStorageFolder: string;
 }
 
 let keys: IKeys;
@@ -18,18 +19,27 @@ if (
   process.env.NODE_ENV === "ci"
 ) {
   keys = {
-    cookieKey: (process.env.COOKIE_KEY) ? process.env.COOKIE_KEY : process.env.TEST_COOKIE_KEY,
-    mongoUri: (process.env.MONGO_URI) ? process.env.MONGO_URI : process.env.TEST_MONGO_URI
+    cookieKey: process.env.COOKIE_KEY
+      ? process.env.COOKIE_KEY
+      : process.env.TEST_COOKIE_KEY,
+    mongoUri: process.env.MONGO_URI
+      ? process.env.MONGO_URI
+      : process.env.TEST_MONGO_URI,
+    fileStorageFolder: process.env.UPLOAD_PATH
+      ? process.env.UPLOAD_PATH
+      : process.env.TEST_UPLOAD_PATH
   };
 } else if (process.env.NODE_ENV === "test") {
   keys = {
     cookieKey: process.env.TEST_COOKIE_KEY,
-    mongoUri: process.env.TEST_MONGO_URI
+    mongoUri: process.env.TEST_MONGO_URI,
+    fileStorageFolder: process.env.TEST_UPLOAD_PATH
   };
 } else {
   keys = {
     cookieKey: process.env.DEV_COOKIE_KEY,
-    mongoUri: process.env.DEV_MONGO_URI
+    mongoUri: process.env.DEV_MONGO_URI,
+    fileStorageFolder: process.env.DEV_UPLOAD_PATH
   };
 }
 

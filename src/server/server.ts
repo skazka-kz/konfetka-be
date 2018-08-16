@@ -7,7 +7,7 @@ import * as helmet from "helmet";
 import * as mongoose from "mongoose";
 import * as passport from "passport";
 import { Logger } from "winston";
-import keys from "./helpers/keys";
+import keys from "../../config/keys";
 import logger from "./helpers/Logger";
 import ErrorHandler from "./middlewares/errorHandler";
 import AuthRouter from "./routers/AuthRouter";

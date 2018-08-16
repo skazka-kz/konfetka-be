@@ -8,7 +8,7 @@ export type IProductDocument = Document & {
   weight?: string;
   price?: number;
   frontImage?: IImageDocument;
-  images?: [IImageDocument];
+  images?: IImageDocument[];
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -20,5 +20,5 @@ export interface IProductProps {
   price?: number;
   category?: string;
   frontImage?: IImageProps;
-  images?: [IImageProps];
+  images?: IImageProps[];
 }
