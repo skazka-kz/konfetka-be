@@ -39,31 +39,38 @@ class ProductRouter {
   }
 
   private async GetProduct(req: Request, res: Response) {
-    const { id }: any = req.params;
-    const product = await Product.findById(id).populate("frontImage").populate("images");
-    if (!product) {
-      return res
-        .status(400)
-        .send({ message: "Error: No product with such ID found" });
+    const id: string = req.params.id;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
     }
-    return res.send(product);
+    try {
+      const product = await Product.findById(id)
+        .populate("frontImage")
+        .populate("images");
+      if (!product) {
+        return res
+          .status(400)
+          .send({ message: "Error: No product with such ID found" });
+      }
+      return res.send(product);
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
   }
 
   private async CreateProduct(req: Request, res: Response) {
     try {
-      const {
-        category,
-        description,
-        price,
-        title,
-        weight
-      }: IProductProps = JSON.parse(req.body.product);
+      const props: IProductProps = JSON.parse(req.body.product);
 
       const filesMetadata = req.body.filesMetadata;
       const files = req.body.files;
 
       try {
-        const createdProduct = new Product();
+        const createdProduct = new Product(props);
+        await createdProduct.save();
+        return res.send(createdProduct);
       } catch (e) {
         return res.status(400).send({ message: e.message ? e.message : e });
       }
@@ -71,7 +78,7 @@ class ProductRouter {
       // JSON parse error
       return res
         .status(400)
-        .send({ message: "Error: error parsing Product info" });
+        .send({ message: "Error: Error parsing product info" });
     }
   }
 
