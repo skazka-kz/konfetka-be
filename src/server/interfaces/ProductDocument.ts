@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { IImageProps } from "./ImageDocument";
+import { IImageDocument, IImageProps } from "./ImageDocument";
 
 export type IProductDocument = Document & {
   title: string;
@@ -7,11 +7,10 @@ export type IProductDocument = Document & {
   description?: string;
   weight?: string;
   price?: string;
-  frontImage?: string;
-  images?: [string];
+  frontImage?: IImageDocument;
+  images?: [IImageDocument];
   createdAt?: Date;
-  editedAt?: Date;
-
+  updatedAt?: Date;
 };
 
 export interface IProductProps {
@@ -20,6 +19,6 @@ export interface IProductProps {
   weight?: string;
   price?: string;
   category?: string;
-  frontImage?: string;
-  images?: [string];
+  frontImage?: IImageProps;
+  images?: [IImageProps];
 }

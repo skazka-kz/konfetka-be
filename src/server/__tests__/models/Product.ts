@@ -1,10 +1,12 @@
 import { Application } from "express";
 import "jest";
 import supertest = require("supertest");
-import { createSampleUser } from "../../helpers/FakeFactory";
-import { IUserProps, IUserUpdateProps } from "../../interfaces/UserDocument";
+import {
+  createSampleImage,
+  createSampleProduct,
+  createSampleUser
+} from "../../helpers/FakeFactory";
 import Product from "../../models/Product";
-import User from "../../models/User";
 import Server from "../../server";
 
 let app: Application;
@@ -32,7 +34,44 @@ describe("Test suite for the Product model", () => {
     });
     describe("Public setupRoutes", () => {
       test("GET /products gets a list of products", async () => {
-        expect(true).toBeTruthy();
+        const product = createSampleProduct();
+        product.frontImage = createSampleImage();
+        product.images.push(createSampleImage());
+        product.images.push(createSampleImage());
+
+        await Promise.all([
+          product.save(),
+          product.frontImage.save(),
+          product.images[0].save(),
+          product.images[1].save()
+        ]);
+
+        const response = await request.get(`/api/v1/products/${product.id}`);
+        expect(response.status).toBe(200);
+        expect(response.body).toBeTruthy();
+        const prod = response.body;
+        expect(prod._id).toBe(product.id);
+        expect(prod.title).toBe(product.title);
+        expect(prod.frontImage.path).toBe(product.frontImage.path);
+        expect(prod.images.length).toBe(2);
+      });
+
+      test("GET /products/:id gets details of a product", async () => {
+        const product = createSampleProduct();
+        product.frontImage = createSampleImage();
+        product.images.push(createSampleImage());
+        product.images.push(createSampleImage());
+
+        await Promise.all([
+          product.save(),
+          product.frontImage.save(),
+          product.images[0].save(),
+          product.images[1].save()
+        ]);
+
+        const response = await request.get("/api/v1/products");
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBeGreaterThanOrEqual(1);
       });
     });
     describe("Protected setupRoutes that require authentication", () => {
@@ -50,6 +89,8 @@ describe("Test suite for the Product model", () => {
         });
         editorCookies = authResponse.header["set-cookie"];
       });
+
+      test("GET /products gets a list of products", async () => {});
     });
     describe("Make sure protected setupRoutes are secured", () => {});
   });

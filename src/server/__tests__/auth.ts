@@ -1,11 +1,11 @@
 import { Application } from "express";
 import "jest";
 import supertest = require("supertest");
-import { createSampleUser } from "../../helpers/FakeFactory";
-import User from "../../models/User";
-import Server from "../../server";
+import { createSampleUser } from "../helpers/FakeFactory";
+import User from "../models/User";
+import Server from "../server";
 
-let app: Application = new Server().app;
+const app: Application = new Server().app;
 let request: supertest.SuperTest<supertest.Test>;
 let user: any;
 let originalPassword: string;

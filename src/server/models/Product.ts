@@ -18,10 +18,12 @@ const ProductSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Image"
   },
-  images: [{
-    type: Schema.Types.ObjectId,
-    ref: "Image"
-  }],
+  images: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Image"
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
@@ -29,6 +31,10 @@ const ProductSchema: Schema = new Schema({
   updatedAt: Date
 });
 
-ProductSchema.pre("save")
+ProductSchema.pre("save", async function save(next) {
+  const product = this as IProductDocument;
+  product.updatedAt = new Date();
+  next();
+});
 
 export default model<IProductDocument>("Product", ProductSchema);

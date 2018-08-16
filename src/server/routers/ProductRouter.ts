@@ -34,13 +34,13 @@ class ProductRouter {
 
   private async GetProducts(req: Request, res: Response) {
     // TODO: add support for filtering, sorting and pagination
-    const all = await Product.find({});
+    const all = await Product.find({}).populate("frontImage");
     return res.send(all);
   }
 
   private async GetProduct(req: Request, res: Response) {
     const { id }: any = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate("frontImage").populate("images");
     if (!product) {
       return res
         .status(400)
@@ -87,3 +87,6 @@ class ProductRouter {
     this.router.delete("/:id", requireEditorRights, this.DeleteProduct);
   }
 }
+
+const pr = new ProductRouter();
+export default pr.router;

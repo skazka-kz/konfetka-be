@@ -1,5 +1,4 @@
 import { model, Schema } from "mongoose";
-
 import { IImageDocument } from "../interfaces/ImageDocument";
 
 const ImageSchema: Schema = new Schema({
@@ -12,10 +11,12 @@ const ImageSchema: Schema = new Schema({
   height: Number,
   size: Number,
   originalFileName: String,
-  thumbnailUrl: String,
-  thumbnailSize: Number,
-  thumbnailWidth: Number,
-  thumbnailHeight: Number,
+  thumbnail: {
+    path: String,
+    size: Number,
+    width: Number,
+    height: Number,
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -23,6 +24,10 @@ const ImageSchema: Schema = new Schema({
   updatedAt: Date
 });
 
-
+ImageSchema.pre("save", async function save(next) {
+  const product = this as IImageDocument;
+  product.updatedAt = new Date();
+  next();
+});
 
 export default model<IImageDocument>("Image", ImageSchema);

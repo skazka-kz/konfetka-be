@@ -1,5 +1,6 @@
-import { Document } from "mongoose";
+import {Document, Schema} from "mongoose";
 
+type Created = Date.now;
 export type IImageDocument = Document & {
   title: string;
   path: string;
@@ -10,7 +11,12 @@ export type IImageDocument = Document & {
   thumbnailUrl: string;
   thumbnailSize: number;
   thumbnailWidth: number;
-  thumbnailHeight: number;
+  thumbnailHeight: number;,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: Date
 };
 
 export interface IImageProps {
