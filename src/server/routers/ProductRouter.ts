@@ -10,7 +10,6 @@ import {
   requireLogin
 } from "../middlewares/requireLogin";
 import Product from "../models/Product";
-import {Validator} from "react";
 
 const upload = multer({ dest: keys.fileStorageFolder });
 
@@ -25,13 +24,28 @@ class ProductRouter {
   ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
+        const validate = new Validator();
         // Start by validating the input data
         let validatedProps: IProductProps = {
-          title: Validator.validateTitle(productProps.title),
-          price: Validator.validatePrice(productProps.price),
-          description: Validator.validateDescription(productProps.description),
-          weight: Validator.validateWeight(productProps.weight)
+          title: validate.product.title(productProps.title),
+          price: validate.isPositiveInteger(productProps.price),
+          description: validate.product.description(productProps.description),
+          weight: validate.product.weight(productProps.weight)
         };
+
+        validatedProps.category = await validate.product.category(
+          productProps.category
+        );
+
+        const product = new Product(validatedProps);
+        const validatedImages: IImageMetaData[] = imagesMetadata.map(imd => {
+          return {
+            title: validate.product.title(imd.title),
+            height: validate.isPositiveInteger(imd.height),
+            width: validate.isPositiveInteger(imd.width)
+          };
+        });
+
       } catch (e) {
         reject(e);
       }
@@ -76,13 +90,18 @@ class ProductRouter {
   private async CreateProduct(req: Request, res: Response) {
     try {
       const props: IProductProps = JSON.parse(req.body.product);
-      const filesMetadata: IImageMetaData = JSON.parse(req.body.filesMetadata);
+      const filesMetadata: IImageMetaData[] = JSON.parse(
+        req.body.filesMetadata
+      );
       const files = req.body.files;
 
       try {
-        const createdProduct = new Product(props);
-        await createdProduct.save();
-        return res.send(createdProduct);
+        const created = await ProductRouter.addProduct(
+          props,
+          files,
+          filesMetadata
+        );
+        return res.send(created);
       } catch (e) {
         return res.status(400).send({ message: e.message ? e.message : e });
       }
