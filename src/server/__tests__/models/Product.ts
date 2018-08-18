@@ -153,7 +153,7 @@ describe("Test suite for the Product model", () => {
 
         expect(response.status).toBe(200);
         expect(response.body._id).toBeTruthy();
-        const loaded = await Product.findById(response.body._id);
+        const loaded = await Product.findById(response.body._id).populate("frontImage").populate("images");
 
         expect(loaded.title).toBe(props.title);
         expect(loaded.price).toBe(props.price);
