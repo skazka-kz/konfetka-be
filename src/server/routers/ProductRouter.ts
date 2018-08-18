@@ -6,6 +6,7 @@ import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
 import { requireEditorRights } from "../middlewares/requireLogin";
 import Product from "../models/Product";
+import Image from "../models/Image";
 
 const upload = multer({
   storage: fileStorage,
@@ -58,26 +59,54 @@ class ProductRouter {
         const promises = [];
         promises.push(product.save());
         // If there are images, validate and add
-        if (Array.isArray(images) && Array.isArray(imagesMetadata)) {
-          const validatedImageMeta: IImageMetaData[] = imagesMetadata.map(
-            imd => {
-              return {
-                title: validate.product.title(imd.title),
-                height: validate.isPositiveInteger(imd.height),
-                width: validate.isPositiveInteger(imd.width)
-              };
+        if (
+          Array.isArray(images) &&
+          Array.isArray(imagesMetadata) &&
+          Array.isArray(thumbs) &&
+          Array.isArray(thumbsMetadata)
+        ) {
+          product.images = [];
+          // Gather and validate image data, thumbnails, then gather in two arrays, thumbnail array and image array
+          const thumbsProps: IImageProps[] = thumbs.map((thumb, index) => ({
+            title: validate.product.title(thumbsMetadata[index].title),
+            path: thumb.path,
+            size: thumb.size,
+            height: validate.isPositiveInteger(thumbsMetadata[index].height),
+            width: validate.isPositiveInteger(thumbsMetadata[index].width),
+            originalFileName: thumb.filename
+          }));
+
+          const imageProps: IImageProps[] = images.map((image, index) => ({
+            title: validate.product.title(imagesMetadata[index].title),
+            path: image.path,
+            size: image.size,
+            height: validate.isPositiveInteger(imagesMetadata[index].height),
+            width: validate.isPositiveInteger(imagesMetadata[index].width),
+            originalFileName: image.filename,
+            thumbnail: thumbsProps[index]
+          }));
+
+          // Now create the mongoose objects
+          if (thumbsProps.length !== imageProps.length) {
+            reject("Error: Number of images and thumbnails mismatch");
+          }
+
+          imageProps.forEach((props, index) => {
+            const image = new Image(props);
+            const thumbnail = new Image(thumbsProps[index]);
+            image.thumbnail = thumbnail;
+            if (!product.frontImage) {
+              product.frontImage = image;
+            } else {
+              product.images.push(image);
             }
-          );
-          const imageProps: IImageProps[] = images.map((image, index) => {
-            return {
-              title: validatedImageMeta[index].title,
-              path: image.originalname,
-              size: image.size,
-              height: validatedImageMeta[index].height,
-              width: validatedImageMeta[index].width
-            };
+            promises.push(thumbnail.save());
+            promises.push(image.save());
           });
         }
+        await Promise.all(promises);
+
+        resolve(product);
       } catch (e) {
         reject(e);
       }
@@ -128,7 +157,11 @@ class ProductRouter {
       const thumbsMetadata: IImageMetaData[] = JSON.parse(
         req.body.thumbsMetadata
       );
+
+      // ignoring, special case
+      // @ts-ignore
       const images: Express.Multer.File[] = req.files.images;
+      // @ts-ignore
       const thumbs: Express.Multer.File[] = req.files.thumbs;
 
       try {

@@ -156,7 +156,7 @@ describe("Test suite for the Product model", () => {
         const loaded = await Product.findById(response.body._id);
 
         expect(loaded.title).toBe(props.title);
-        expect(loaded.price).toBe(props.description);
+        expect(loaded.price).toBe(props.price);
         expect(loaded.weight).toBe(props.weight);
 
         expect(loaded.frontImage.title).toBeTruthy();

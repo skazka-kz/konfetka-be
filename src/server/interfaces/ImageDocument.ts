@@ -7,22 +7,19 @@ export type IImageDocument = Document & {
   height: number;
   size: number;
   originalFileName: string;
-  thumbnailUrl: string;
-  thumbnailSize: number;
-  thumbnailWidth: number;
-  thumbnailHeight: number;
+  thumbnail: Document & IImageDocument;
   createdAt: Date;
   updatedAt: Date;
 };
 
 export interface IImageProps {
-  title: string;
-  path: string;
+  title?: string;
+  path?: string;
   width?: number;
   height?: number;
   size?: number;
   originalFileName?: string;
-  thumbnail: IImageProps;
+  thumbnail?: IImageProps;
 }
 
 export interface IImageMetaData {
