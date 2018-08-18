@@ -1,14 +1,11 @@
 import * as multer from "multer";
 import * as path from "path";
 import * as uniqid from "uniqid";
+import config from "../../../config/keys";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (process.env.NODE_ENV === "test") {
-      cb(null, "./uploads/test");
-    } else {
-      cb(null, "./uploads");
-    }
+    cb(null, config.fileStorageFolder);
   },
   filename: (req, file, cb) => {
     let extension = path.extname(file.originalname);
@@ -27,6 +24,8 @@ const storage = multer.diskStorage({
           extension = ".jpg";
       }
     }
-    cb(null, `product_image-${uniqid()}${extension}`);
+    cb(null, `image-${uniqid()}${extension}`);
   }
 });
+
+export default storage;

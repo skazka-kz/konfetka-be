@@ -1,17 +1,31 @@
 import { Request, Response, Router } from "express";
 import * as multer from "multer";
-import keys from "../../../config/keys";
+import fileStorage from "../helpers/fileStorage";
 import Validator from "../helpers/InputValidator";
 import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
-import {
-  requireAdminRights,
-  requireEditorRights,
-  requireLogin
-} from "../middlewares/requireLogin";
+import { requireEditorRights } from "../middlewares/requireLogin";
 import Product from "../models/Product";
 
-const upload = multer({ dest: keys.fileStorageFolder });
+const upload = multer({
+  storage: fileStorage,
+  limits: { fileSize: 1500000 },
+  fileFilter: (req, file, cb) => {
+    // Check for extension and mime type
+    const fileTypes = /jpeg|jpg|png|gif/;
+    // Check the mime type
+    const mimeType = fileTypes.test(file.mimetype);
+
+    if (mimeType) {
+      return cb(null, true);
+    } else {
+      return cb(
+        new Error(`Error: incorrect file type. Only images can be uploaded`),
+        false
+      );
+    }
+  }
+});
 
 class ProductRouter {
   //#region
@@ -19,14 +33,14 @@ class ProductRouter {
 
   private static addProduct(
     productProps: IProductProps,
-    images?: IImageProps[],
+    images?: File[],
     imagesMetadata?: IImageMetaData[]
   ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
         const validate = new Validator();
         // Start by validating the input data
-        let validatedProps: IProductProps = {
+        const validatedProps: IProductProps = {
           title: validate.product.title(productProps.title),
           price: validate.isPositiveInteger(productProps.price),
           description: validate.product.description(productProps.description),
@@ -45,7 +59,9 @@ class ProductRouter {
             width: validate.isPositiveInteger(imd.width)
           };
         });
+        const imageProps: IImageProps[] = images.map((image, index) => {
 
+        });
       } catch (e) {
         reject(e);
       }
@@ -90,16 +106,16 @@ class ProductRouter {
   private async CreateProduct(req: Request, res: Response) {
     try {
       const props: IProductProps = JSON.parse(req.body.product);
-      const filesMetadata: IImageMetaData[] = JSON.parse(
-        req.body.filesMetadata
+      const imagesMetadata: IImageMetaData[] = JSON.parse(
+        req.body.imagesMetadata
       );
-      const files = req.body.files;
+      const images = req.files;
 
       try {
         const created = await ProductRouter.addProduct(
           props,
-          files,
-          filesMetadata
+          images,
+          imagesMetadata
         );
         return res.send(created);
       } catch (e) {
@@ -120,7 +136,12 @@ class ProductRouter {
   private setupRoutes() {
     this.router.get("/", this.GetProducts);
     this.router.get("/:id", this.GetProduct);
-    this.router.post("/", requireEditorRights, this.CreateProduct);
+    this.router.post(
+      "/",
+      requireEditorRights,
+      upload.array("images", 10),
+      this.CreateProduct
+    );
     this.router.put("/:id", requireEditorRights, this.UpdateProduct);
     this.router.delete("/:id", requireEditorRights, this.DeleteProduct);
   }

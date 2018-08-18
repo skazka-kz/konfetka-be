@@ -97,7 +97,7 @@ describe("Test suite for the Product model", () => {
         editorCookies = authResponse.header["set-cookie"];*/
       });
 
-      test("POST /products creates a new product, without images", async () => {
+      test("POST /products creates a new product, with images", async () => {
         const loginRes = await request
           .post("/api/v1/auth/login")
           .send(editorCredentials);
@@ -112,9 +112,9 @@ describe("Test suite for the Product model", () => {
         };
 
         const files = [
-          "src/server/__tests__/assets/sample1",
-          "src/server/__tests__/assets/sample2",
-          "src/server/__tests__/assets/sample3"
+          "src/server/__tests__/assets/sample1.jpg",
+          "src/server/__tests__/assets/sample2.jpg",
+          "src/server/__tests__/assets/sample3.jpg"
         ];
         const filesMetadata: IImageMetaData[] = [
           {
@@ -140,10 +140,10 @@ describe("Test suite for the Product model", () => {
         const req = request
           .post("/api/v1/products")
           .field("product", JSON.stringify(props))
-          .field("filesMetadata", JSON.stringify(filesMetadata))
-          .attach("files", files[0])
-          .attach("files", files[1])
-          .attach("files", files[2]);
+          .field("imagesMetadata", JSON.stringify(filesMetadata))
+          .attach("images", files[0])
+          .attach("images", files[1])
+          .attach("images", files[2]);
         req.cookies = cookies;
         const response = await req;
 
