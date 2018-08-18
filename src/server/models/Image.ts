@@ -12,6 +12,7 @@ const ImageSchema: Schema = new Schema({
   size: Number,
   originalFileName: String,
   thumbnail: {
+    title: String,
     path: String,
     size: Number,
     width: Number,

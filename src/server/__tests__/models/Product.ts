@@ -153,7 +153,9 @@ describe("Test suite for the Product model", () => {
 
         expect(response.status).toBe(200);
         expect(response.body._id).toBeTruthy();
-        const loaded = await Product.findById(response.body._id).populate("frontImage").populate("images");
+        const loaded = await Product.findById(response.body._id)
+          .populate("frontImage")
+          .populate("images");
 
         expect(loaded.title).toBe(props.title);
         expect(loaded.price).toBe(props.price);
@@ -161,6 +163,11 @@ describe("Test suite for the Product model", () => {
 
         expect(loaded.frontImage.title).toBeTruthy();
         expect(loaded.frontImage.path).toBeTruthy();
+        // Make sure the first image in the list becomes the front image
+        expect(loaded.frontImage.title).toBe(filesMetadata[0].title);
+        expect(loaded.frontImage.thumbnail.title).toBe(filesMetadata[0].title);
+
+        expect(loaded.images[1].title).toBe(filesMetadata[2].title);
         expect(loaded.images.length).toBe(2);
       });
     });
