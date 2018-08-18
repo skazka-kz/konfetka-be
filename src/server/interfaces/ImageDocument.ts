@@ -1,4 +1,4 @@
-import {Document, Schema} from "mongoose";
+import { Document, Schema } from "mongoose";
 
 export type IImageDocument = Document & {
   title: string;
@@ -22,10 +22,7 @@ export interface IImageProps {
   height?: number;
   size?: number;
   originalFileName?: string;
-  thumbnailUrl?: string;
-  thumbnailSize?: number;
-  thumbnailWidth?: number;
-  thumbnailHeight?: number;
+  thumbnail: IImageProps;
 }
 
 export interface IImageMetaData {

@@ -33,8 +33,10 @@ class ProductRouter {
 
   private static addProduct(
     productProps: IProductProps,
-    images?: File[],
-    imagesMetadata?: IImageMetaData[]
+    images?: Express.Multer.File[],
+    imagesMetadata?: IImageMetaData[],
+    thumbs?: Express.Multer.File[],
+    thumbsMetadata?: IImageMetaData[]
   ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -52,16 +54,30 @@ class ProductRouter {
         );
 
         const product = new Product(validatedProps);
-        const validatedImages: IImageMetaData[] = imagesMetadata.map(imd => {
-          return {
-            title: validate.product.title(imd.title),
-            height: validate.isPositiveInteger(imd.height),
-            width: validate.isPositiveInteger(imd.width)
-          };
-        });
-        const imageProps: IImageProps[] = images.map((image, index) => {
-
-        });
+        // Save all promises to an array to Promise.all() later
+        const promises = [];
+        promises.push(product.save());
+        // If there are images, validate and add
+        if (Array.isArray(images) && Array.isArray(imagesMetadata)) {
+          const validatedImageMeta: IImageMetaData[] = imagesMetadata.map(
+            imd => {
+              return {
+                title: validate.product.title(imd.title),
+                height: validate.isPositiveInteger(imd.height),
+                width: validate.isPositiveInteger(imd.width)
+              };
+            }
+          );
+          const imageProps: IImageProps[] = images.map((image, index) => {
+            return {
+              title: validatedImageMeta[index].title,
+              path: image.originalname,
+              size: image.size,
+              height: validatedImageMeta[index].height,
+              width: validatedImageMeta[index].width
+            };
+          });
+        }
       } catch (e) {
         reject(e);
       }
@@ -109,13 +125,19 @@ class ProductRouter {
       const imagesMetadata: IImageMetaData[] = JSON.parse(
         req.body.imagesMetadata
       );
-      const images = req.files;
+      const thumbsMetadata: IImageMetaData[] = JSON.parse(
+        req.body.thumbsMetadata
+      );
+      const images: Express.Multer.File[] = req.files.images;
+      const thumbs: Express.Multer.File[] = req.files.thumbs;
 
       try {
         const created = await ProductRouter.addProduct(
           props,
           images,
-          imagesMetadata
+          imagesMetadata,
+          thumbs,
+          thumbsMetadata
         );
         return res.send(created);
       } catch (e) {
@@ -139,7 +161,10 @@ class ProductRouter {
     this.router.post(
       "/",
       requireEditorRights,
-      upload.array("images", 10),
+      upload.fields([
+        { name: "images", maxCount: 10 },
+        { name: "thumbs", maxCount: 10 }
+      ]),
       this.CreateProduct
     );
     this.router.put("/:id", requireEditorRights, this.UpdateProduct);

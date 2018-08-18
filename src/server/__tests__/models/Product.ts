@@ -141,9 +141,13 @@ describe("Test suite for the Product model", () => {
           .post("/api/v1/products")
           .field("product", JSON.stringify(props))
           .field("imagesMetadata", JSON.stringify(filesMetadata))
+          .field("thumbsMetadata", JSON.stringify(filesMetadata))
           .attach("images", files[0])
           .attach("images", files[1])
-          .attach("images", files[2]);
+          .attach("images", files[2])
+          .attach("thumbs", files[0])
+          .attach("thumbs", files[1])
+          .attach("thumbs", files[2]);
         req.cookies = cookies;
         const response = await req;
 
