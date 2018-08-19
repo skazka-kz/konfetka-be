@@ -12,7 +12,7 @@ export function requireLogin(
 }
 
 export function requireEditorRights(req: Request, res: Response, next: NextFunction) {
-  if (!req.user && !req.user.isEditor) {
+  if (!req.user || !req.user.isEditor) {
     return res.status(403).send({ message: "Error: Not logged in or insufficient privileges" });
   }
   next();

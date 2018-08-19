@@ -178,7 +178,33 @@ describe("Test suite for the Product model", () => {
 
         const response = await request.post("/api/v1/products").send(props);
         expect(response.status).toBe(403);
-        expect(response.body.message).toBe("Error: ");
+        expect(response.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
+      });
+
+      test("Authenticated requests without editor rights can't POST /products to add product", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(readonlyCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const props: IProductProps = {
+          title: "Some title",
+          price: 550,
+          description: "a super long description",
+          weight: "Much weight wow"
+        };
+
+        const req = request.post("/api/v1/products").send(props);
+        req.cookies = cookies;
+
+        const response = await req;
+        expect(response.status).toBe(403);
+        expect(response.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
       });
     });
   });
