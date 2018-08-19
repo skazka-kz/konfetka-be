@@ -168,7 +168,7 @@ describe("Test suite for the Product model", () => {
       });
     });
     describe("Make sure protected setupRoutes are secured", () => {
-      test("Non-authenticated requests can't POST /products to add product", async () => {
+      test("Non-authenticated requests can't POST, PUR or DELETE /products", async () => {
         const props: IProductProps = {
           title: "Some title",
           price: 550,
@@ -176,14 +176,45 @@ describe("Test suite for the Product model", () => {
           weight: "Much weight wow"
         };
 
-        const response = await request.post("/api/v1/products").send(props);
-        expect(response.status).toBe(403);
-        expect(response.body.message).toBe(
+        const postRes = await request.post("/api/v1/products").send(props);
+        expect(postRes.status).toBe(403);
+        expect(postRes.body.message).toBe(
           "Error: Not logged in or insufficient privileges"
         );
+
+        // Assert PUT requests don't actually edit products
+        const actualProduct = createSampleProduct();
+        await actualProduct.save();
+
+        const putRes = await request
+          .put(`/api/v1/products/${actualProduct.id}`)
+          .send({
+            title: "Some other title"
+          });
+        expect(putRes.status).toBe(403);
+        expect(putRes.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
+        // The request was good, but double check the product wasn't actually edited
+        const loadedProduct = await Product.findById(actualProduct.id);
+        expect(loadedProduct.title).not.toBe("Some other title");
+        expect(loadedProduct.title).toBe(actualProduct.title);
+
+        const deleteRes = await request
+          .delete("/api/v1/products/someId")
+          .send(props);
+        expect(deleteRes.status).toBe(403);
+        expect(deleteRes.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
+
+        // Same as above, request was good but check the product wasn't actually deleted
+        const loadedAgain = await Product.findById(actualProduct.id);
+        expect(loadedAgain).toBeTruthy();
+        expect(loadedAgain.title).toBe(actualProduct.title);
       });
 
-      test("Authenticated requests without editor rights can't POST /products to add product", async () => {
+      test("Authenticated requests without editor rights can't POST, PUT or DELETE /products", async () => {
         const loginRes = await request
           .post("/api/v1/auth/login")
           .send(readonlyCredentials);
@@ -205,6 +236,39 @@ describe("Test suite for the Product model", () => {
         expect(response.body.message).toBe(
           "Error: Not logged in or insufficient privileges"
         );
+
+        // Assert PUT requests don't actually edit products
+        const actualProduct = createSampleProduct();
+        await actualProduct.save();
+
+        const putReq = request
+          .put(`/api/v1/products/${actualProduct.id}`)
+          .send({
+            title: "Some other title"
+          });
+        putReq.cookies = cookies;
+        const putRes = await putReq;
+        expect(putRes.status).toBe(403);
+        expect(putRes.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
+        // The request was good, but double check the product wasn't actually edited
+        const loadedProduct = await Product.findById(actualProduct.id);
+        expect(loadedProduct.title).not.toBe("Some other title");
+        expect(loadedProduct.title).toBe(actualProduct.title);
+
+        const deleteReq = request.delete("/api/v1/products/someId").send(props);
+        deleteReq.cookies = cookies;
+        const deleteRes = await deleteReq;
+        expect(deleteRes.status).toBe(403);
+        expect(deleteRes.body.message).toBe(
+          "Error: Not logged in or insufficient privileges"
+        );
+
+        // Same as above, request was good but check the product wasn't actually deleted
+        const loadedAgain = await Product.findById(actualProduct.id);
+        expect(loadedAgain).toBeTruthy();
+        expect(loadedAgain.title).toBe(actualProduct.title);
       });
     });
   });
