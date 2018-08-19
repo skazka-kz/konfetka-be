@@ -1,15 +1,17 @@
+import * as del from "del";
 import { Application } from "express";
 import "jest";
+import * as makeDir from "make-dir";
 import supertest = require("supertest");
 import {
   createSampleImage,
   createSampleProduct,
   createSampleUser
 } from "../../helpers/FakeFactory";
+import { IImageMetaData } from "../../interfaces/ImageDocument";
 import { IProductProps } from "../../interfaces/ProductDocument";
 import Product from "../../models/Product";
 import Server from "../../server";
-import { IImageMetaData } from "../../interfaces/ImageDocument";
 
 const app: Application = new Server().app;
 let request: supertest.SuperTest<supertest.Test>;
@@ -83,18 +85,12 @@ describe("Test suite for the Product model", () => {
       });
     });
     describe("Protected routes that require authentication", () => {
-      beforeEach(async () => {
-        // Create a user, login, save cookies. Send cookies for protected setupRoutes
-        /*const user = createSampleUser();
-        const originalPassword = user.password;
-        user.isEditor = true;
-        await user.save();
+      beforeAll(async () => {
+        await makeDir("uploads_test");
+      });
 
-        const authResponse = await request.post("/api/v1/auth/login").send({
-          username: user.email,
-          password: originalPassword
-        });
-        editorCookies = authResponse.header["set-cookie"];*/
+      afterAll(async () => {
+        await del("uploads_test/*.jpg");
       });
 
       test("POST /products creates a new product, with images", async () => {
@@ -171,6 +167,19 @@ describe("Test suite for the Product model", () => {
         expect(loaded.images.length).toBe(2);
       });
     });
-    describe("Make sure protected setupRoutes are secured", () => {});
+    describe("Make sure protected setupRoutes are secured", () => {
+      test("Non-authenticated requests can't POST /products to add product", async () => {
+        const props: IProductProps = {
+          title: "Some title",
+          price: 550,
+          description: "a super long description",
+          weight: "Much weight wow"
+        };
+
+        const response = await request.post("/api/v1/products").send(props);
+        expect(response.status).toBe(403);
+        expect(response.body.message).toBe("Error: ");
+      });
+    });
   });
 });
