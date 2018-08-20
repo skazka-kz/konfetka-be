@@ -166,6 +166,87 @@ describe("Test suite for the Product model", () => {
         expect(loaded.images[1].title).toBe(filesMetadata[2].title);
         expect(loaded.images.length).toBe(2);
       });
+      test("PUT /products/:id changes an existing product", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const product = createSampleProduct();
+        await product.save();
+        const changedProps: IProductProps = {
+          title: "A new title, better",
+          description: "A new description",
+          weight: "Heavy",
+          price: 999
+        };
+
+        const putReq = request
+          .put(`/api/v1/products/${product.id}`)
+          .send(changedProps);
+        putReq.cookies = cookies;
+        const putRes = await putReq;
+        expect(putRes.status).toBe(200);
+        expect(putRes.body.title).toBe(changedProps.title);
+        expect(putRes.body.description).toBe(changedProps.description);
+        expect(putRes.body.weight).toBe(changedProps.weight);
+        expect(putRes.body.price).toBe(changedProps.price);
+
+        // Double check, load from DB
+        const productLoaded = await Product.findById(product.id);
+        expect(productLoaded.title).toBe(changedProps.title);
+        expect(productLoaded.description).toBe(changedProps.description);
+        expect(productLoaded.weight).toBe(changedProps.weight);
+        expect(productLoaded.price).toBe(changedProps.price);
+      });
+      test("DELETE /products/:id deletes an existing product", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const product = createSampleProduct();
+        await product.save();
+
+        const putReq = request.delete(`/api/v1/products/${product.id}`);
+        putReq.cookies = cookies;
+        const putRes = await putReq;
+
+        expect(putRes.status).toBe(200);
+        // Double check the product is actually deleted
+        const productLoaded = await Product.findById(product.id);
+        expect(productLoaded).toBeFalsy();
+      });
+      test("PUT /products/:id returns a meaningful error when passed a wrong ID", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const putReq = request
+          .put("/api/v1/products/invalidId")
+          .send({ title: "Some title" });
+        putReq.cookies = cookies;
+        const putRes = await putReq;
+        expect(putRes.status).toBe(400);
+        expect(putRes.body.message).toBe("Error: ");
+      });
+      test("DELETE /products/:id returns a meaningful error when passed a wrong ID", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const putReq = request.delete("/api/v1/products/invalidId");
+        putReq.cookies = cookies;
+        const putRes = await putReq;
+        expect(putRes.status).toBe(400);
+        expect(putRes.body.message).toBe("Error: ");
+      });
     });
     describe("Make sure protected setupRoutes are secured", () => {
       test("Non-authenticated requests can't POST, PUR or DELETE /products", async () => {
@@ -213,7 +294,6 @@ describe("Test suite for the Product model", () => {
         expect(loadedAgain).toBeTruthy();
         expect(loadedAgain.title).toBe(actualProduct.title);
       });
-
       test("Authenticated requests without editor rights can't POST, PUT or DELETE /products", async () => {
         const loginRes = await request
           .post("/api/v1/auth/login")
