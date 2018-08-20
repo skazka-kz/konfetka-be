@@ -247,7 +247,7 @@ describe("Test suite for the Product model", () => {
         putReq.cookies = cookies;
         const putRes = await putReq;
         expect(putRes.status).toBe(400);
-        expect(putRes.body.message).toBe("Error: ");
+        expect(putRes.body.message).toBe("Error: Not a valid ID");
       });
     });
     describe("Make sure protected setupRoutes are secured", () => {

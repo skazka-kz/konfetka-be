@@ -247,7 +247,26 @@ class ProductRouter {
     }
   }
 
-  private async DeleteProduct(req: Request, res: Response) {}
+  private async DeleteProduct(req: Request, res: Response) {
+    const id: string = req.params.id;
+    if (!validate.mongoId(id)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
+    }
+    try {
+      const product = Product.findById(id);
+      if (!product) {
+        return res
+          .status(400)
+          .send({ message: "Error: No product with such ID" });
+      }
+      await Product.findByIdAndRemove(id);
+      return res.send({ message: "Product deleted successfully" });
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
+  }
 
   private setupRoutes() {
     this.router.get("/", this.GetProducts);
