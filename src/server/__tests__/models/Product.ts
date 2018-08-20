@@ -11,6 +11,7 @@ import {
 import { IImageMetaData } from "../../interfaces/ImageDocument";
 import { IProductProps } from "../../interfaces/ProductDocument";
 import Product from "../../models/Product";
+import User from "../../models/User";
 import Server from "../../server";
 
 const app: Application = new Server().app;
@@ -48,6 +49,7 @@ describe("Test suite for the Product model", () => {
     afterAll(async () => {
       // Doesn't work if not assigned to a variable
       const result = await Product.deleteMany({});
+      const result2 = await User.deleteMany({});
     });
     describe("Public routes", () => {
       test("GET /products gets a list of products", async () => {
@@ -232,7 +234,7 @@ describe("Test suite for the Product model", () => {
         putReq.cookies = cookies;
         const putRes = await putReq;
         expect(putRes.status).toBe(400);
-        expect(putRes.body.message).toBe("Error: ");
+        expect(putRes.body.message).toBe("Error: Not a valid ID");
       });
       test("DELETE /products/:id returns a meaningful error when passed a wrong ID", async () => {
         const loginRes = await request

@@ -129,37 +129,32 @@ class ProductRouter {
         const validatedProps: IProductProps = {
           // Check title was passed since validator throws an error with empty title
           title: productProps.title
-            ? ""
-            : validate.product.title(productProps.title),
+            ? validate.product.title(productProps.title)
+            : "",
           description: validate.product.description(productProps.description),
           weight: validate.product.weight(productProps.weight),
           price: validate.isPositiveInteger(productProps.price),
           category: await validate.product.category(productProps.category)
         };
         // Only change non-empty values, I'm sure there's an easier way of doing this
-        const changedProps: IProductProps = {};
         if (validatedProps.title) {
-          changedProps.title = validatedProps.title;
+          loaded.title = validatedProps.title;
         }
         if (validatedProps.description) {
-          changedProps.description = validatedProps.description;
+          loaded.description = validatedProps.description;
         }
         if (validatedProps.weight) {
-          changedProps.weight = validatedProps.weight;
+          loaded.weight = validatedProps.weight;
         }
         if (validatedProps.price) {
-          changedProps.price = validatedProps.price;
+          loaded.price = validatedProps.price;
         }
         if (validatedProps.category) {
-          changedProps.category = validatedProps.category;
+          loaded.category = validatedProps.category;
         }
 
-        // Now do the "needful"
-        const changedProduct = await Product.findByIdAndUpdate(
-          id,
-          changedProps
-        );
-        resolve(changedProduct);
+        await loaded.save();
+        resolve(loaded);
       } catch (e) {
         reject(e);
       }
