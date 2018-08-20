@@ -5,8 +5,8 @@ import Validator from "../helpers/InputValidator";
 import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
 import { requireEditorRights } from "../middlewares/requireLogin";
-import Product from "../models/Product";
 import Image from "../models/Image";
+import Product from "../models/Product";
 
 const upload = multer({
   storage: fileStorage,
@@ -27,6 +27,8 @@ const upload = multer({
     }
   }
 });
+
+const validate = new Validator();
 
 class ProductRouter {
   //#region
@@ -112,6 +114,57 @@ class ProductRouter {
       }
     });
   }
+
+  private static editProduct(
+    id: string,
+    productProps: IProductProps
+  ): Promise<IProductDocument> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const loaded = await Product.findById(validate.product.id(id));
+        if (!loaded) {
+          reject("Error: No product with such ID found or invalid ID");
+        }
+        // Make sure props passed are safe
+        const validatedProps: IProductProps = {
+          // Check title was passed since validator throws an error with empty title
+          title: productProps.title
+            ? ""
+            : validate.product.title(productProps.title),
+          description: validate.product.description(productProps.description),
+          weight: validate.product.weight(productProps.weight),
+          price: validate.isPositiveInteger(productProps.price),
+          category: await validate.product.category(productProps.category)
+        };
+        // Only change non-empty values, I'm sure there's an easier way of doing this
+        const changedProps: IProductProps = {};
+        if (validatedProps.title) {
+          changedProps.title = validatedProps.title;
+        }
+        if (validatedProps.description) {
+          changedProps.description = validatedProps.description;
+        }
+        if (validatedProps.weight) {
+          changedProps.weight = validatedProps.weight;
+        }
+        if (validatedProps.price) {
+          changedProps.price = validatedProps.price;
+        }
+        if (validatedProps.category) {
+          changedProps.category = validatedProps.category;
+        }
+
+        // Now do the "needful"
+        const changedProduct = await Product.findByIdAndUpdate(
+          id,
+          changedProps
+        );
+        resolve(changedProduct);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
   //#endregion
   public router: Router;
 
@@ -128,7 +181,7 @@ class ProductRouter {
 
   private async GetProduct(req: Request, res: Response) {
     const id: string = req.params.id;
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!validate.mongoId(id)) {
       return res.status(400).send({ message: "Error: Not a valid ID" });
     }
     try {
@@ -184,7 +237,20 @@ class ProductRouter {
     }
   }
 
-  private async UpdateProduct(req: Request, res: Response) {}
+  private async UpdateProduct(req: Request, res: Response) {
+    const id: string = req.params.id;
+    if (!validate.mongoId(id)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
+    }
+    try {
+      const updated = await ProductRouter.editProduct(id, req.body);
+      return res.send(updated);
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
+  }
 
   private async DeleteProduct(req: Request, res: Response) {}
 

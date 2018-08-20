@@ -1,6 +1,13 @@
 import ProductCategory from "../models/ProductCategory";
 
 class ProductValidator {
+  public id(id: string): string {
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new Error("Error: Invalid ID");
+    }
+    return id;
+  }
+
   public title(title: string): string {
     if (!title) {
       throw new Error("Error: Title is required.");

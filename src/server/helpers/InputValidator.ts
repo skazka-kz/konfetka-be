@@ -21,6 +21,10 @@ class InputValidator {
     }
     return num;
   }
+
+  public mongoId(id: string): boolean {
+    return !!(id.match(/^[0-9a-fA-F]{24}$/));
+  }
 }
 
 export default InputValidator;
