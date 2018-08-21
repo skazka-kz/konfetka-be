@@ -10,16 +10,6 @@ const app: Application = new Server().app;
 const request: supertest.SuperTest<supertest.Test> = supertest(app);
 
 describe("User tests, both Mongoose model and REST API", () => {
-  /*beforeEach(async () => {
-    app = new Server().app;
-    request = supertest(app);
-  });
-
-  afterEach(() => {
-    app = undefined;
-    request = undefined;
-  });*/
-
   afterAll(async () => {
     const result = await User.deleteMany({});
   });

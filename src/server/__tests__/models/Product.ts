@@ -39,13 +39,6 @@ describe("Test suite for the Product model", () => {
       readonlyCredentials = { username: user.email, password: user.password };
       await user.save();
     });
-    /*beforeEach(async () => {
-      request = supertest(app);
-    });
-
-    afterEach(() => {
-      request = undefined;
-    });*/
 
     afterAll(async () => {
       // Doesn't work if not assigned to a variable

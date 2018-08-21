@@ -6,7 +6,7 @@ import User from "../models/User";
 import Server from "../server";
 
 const app: Application = new Server().app;
-let request: supertest.SuperTest<supertest.Test>;
+const request: supertest.SuperTest<supertest.Test> = supertest(app);
 let user: any;
 let originalPassword: string;
 
@@ -19,14 +19,6 @@ describe("Authentication related tests", () => {
 
   afterAll(async () => {
     User.findByIdAndRemove(user._id);
-  });
-
-  beforeEach(async () => {
-    request = supertest(app);
-  });
-
-  afterEach(() => {
-    request = undefined;
   });
 
   test("POST /login with the correct credentials returns the right response + cookies", async () => {
