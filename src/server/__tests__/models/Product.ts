@@ -10,12 +10,13 @@ import {
 } from "../../helpers/FakeFactory";
 import { IImageMetaData } from "../../interfaces/ImageDocument";
 import { IProductProps } from "../../interfaces/ProductDocument";
+import Image from "../../models/Image";
 import Product from "../../models/Product";
 import User from "../../models/User";
 import Server from "../../server";
 
 const app: Application = new Server().app;
-let request: supertest.SuperTest<supertest.Test>;
+const request: supertest.SuperTest<supertest.Test> = supertest(app);
 
 let adminCredentials;
 let editorCredentials;
@@ -38,18 +39,19 @@ describe("Test suite for the Product model", () => {
       readonlyCredentials = { username: user.email, password: user.password };
       await user.save();
     });
-    beforeEach(async () => {
+    /*beforeEach(async () => {
       request = supertest(app);
     });
 
     afterEach(() => {
       request = undefined;
-    });
+    });*/
 
     afterAll(async () => {
       // Doesn't work if not assigned to a variable
       const result = await Product.deleteMany({});
       const result2 = await User.deleteMany({});
+      const result3 = await Image.deleteMany({});
     });
     describe("Public routes", () => {
       test("GET /products gets a list of products", async () => {

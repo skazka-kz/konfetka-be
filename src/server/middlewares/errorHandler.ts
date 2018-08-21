@@ -8,9 +8,13 @@ export default function errorHandler(
 ) {
   switch (err.code) {
     case "LIMIT_FILE_SIZE":
-      res.status(400).send({ message: "File and/or request too large" });
-      break;
+      return res.status(400).send({ message: "File and/or request too large" });
     default:
-      res.status(500).send({ message: "Server error" });
+      if (err.match(/duplicate key/)) {
+        return res
+          .status(400)
+          .send({ message: "Error: User with such email already exists" });
+      }
+      return res.status(500).send({ message: err });
   }
 }

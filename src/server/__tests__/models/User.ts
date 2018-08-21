@@ -6,11 +6,11 @@ import { IUserProps, IUserUpdateProps } from "../../interfaces/UserDocument";
 import User from "../../models/User";
 import Server from "../../server";
 
-let app: Application;
-let request: supertest.SuperTest<supertest.Test>;
+const app: Application = new Server().app;
+const request: supertest.SuperTest<supertest.Test> = supertest(app);
 
 describe("User tests, both Mongoose model and REST API", () => {
-  beforeEach(async () => {
+  /*beforeEach(async () => {
     app = new Server().app;
     request = supertest(app);
   });
@@ -18,7 +18,7 @@ describe("User tests, both Mongoose model and REST API", () => {
   afterEach(() => {
     app = undefined;
     request = undefined;
-  });
+  });*/
 
   afterAll(async () => {
     const result = await User.deleteMany({});
@@ -206,10 +206,10 @@ describe("User tests, both Mongoose model and REST API", () => {
         const req = request.delete("/api/v1/users/507f191e810c19729de860ea");
         req.cookies = authCookies;
         const response = await req;
-        expect(response.status).toBe(400);
         expect(response.body.message).toBe(
           "Error: User with such ID does not exist"
         );
+        expect(response.status).toBe(400);
       });
 
       test("GET /users/:id returns a proper error when querying a non-existent user", async () => {
