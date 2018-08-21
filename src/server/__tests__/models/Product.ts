@@ -18,9 +18,9 @@ import Server from "../../server";
 const app: Application = new Server().app;
 const request: supertest.SuperTest<supertest.Test> = supertest(app);
 
-let adminCredentials;
-let editorCredentials;
-let readonlyCredentials;
+let adminCredentials: any;
+let editorCredentials: any;
+let readonlyCredentials: any;
 
 describe("Test suite for the Product model", () => {
   describe("REST API tests", () => {

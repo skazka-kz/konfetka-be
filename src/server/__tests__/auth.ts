@@ -18,7 +18,7 @@ describe("Authentication related tests", () => {
   });
 
   afterAll(async () => {
-    User.findByIdAndRemove(user._id);
+    await User.deleteMany({});
   });
 
   test("POST /login with the correct credentials returns the right response + cookies", async () => {
