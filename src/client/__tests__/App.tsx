@@ -4,6 +4,7 @@ import App from "../components/App";
 
 describe("<App /> Tests", () => {
   test("Renders the App shallowly", () => {
-    shallow(<App />);
+    const el = shallow(<App />);
+    expect(el.length).toBe(1);
   });
 });
