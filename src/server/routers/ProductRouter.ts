@@ -2,7 +2,11 @@ import { Request, Response, Router } from "express";
 import * as multer from "multer";
 import fileStorage from "../helpers/fileStorage";
 import Validator from "../helpers/InputValidator";
-import { IImageMetaData, IImageProps } from "../interfaces/ImageDocument";
+import {
+  IImageDocument,
+  IImageMetaData,
+  IImageProps
+} from "../interfaces/ImageDocument";
 import { IProductDocument, IProductProps } from "../interfaces/ProductDocument";
 import { requireEditorRights } from "../middlewares/requireLogin";
 import Image from "../models/Image";
@@ -43,7 +47,6 @@ class ProductRouter {
   ): Promise<IProductDocument> {
     return new Promise(async (resolve, reject) => {
       try {
-        const validate = new Validator();
         // Start by validating the input data
         const validatedProps: IProductProps = {
           title: validate.product.title(productProps.title),
@@ -111,6 +114,74 @@ class ProductRouter {
         resolve(product);
       } catch (e) {
         reject(e);
+      }
+    });
+  }
+
+  // Very similar to the above method. Can refactor at some point
+  private static addImagesToProduct(
+    productId: string,
+    images?: Express.Multer.File[],
+    imagesMetadata?: IImageMetaData[],
+    thumbs?: Express.Multer.File[],
+    thumbsMetadata?: IImageMetaData[]
+  ): Promise<IProductDocument> {
+    return new Promise(async (resolve, reject) => {
+      if (!validate.mongoId(productId)) {
+        reject("Error: Not a valid ID");
+      }
+
+      const product = await Product.findById(productId);
+      const promises = [];
+      if (
+        Array.isArray(images) &&
+        Array.isArray(imagesMetadata) &&
+        Array.isArray(thumbs) &&
+        Array.isArray(thumbsMetadata)
+      ) {
+        // Gather and validate image data, thumbnails, then gather in two arrays, thumbnail array and image array
+        const thumbsProps: IImageProps[] = thumbs.map((thumb, index) => ({
+          title: validate.product.title(thumbsMetadata[index].title),
+          path: thumb.path,
+          size: thumb.size,
+          height: validate.isPositiveInteger(thumbsMetadata[index].height),
+          width: validate.isPositiveInteger(thumbsMetadata[index].width),
+          originalFileName: thumb.filename
+        }));
+
+        const imageProps: IImageProps[] = images.map((image, index) => ({
+          title: validate.product.title(imagesMetadata[index].title),
+          path: image.path,
+          size: image.size,
+          height: validate.isPositiveInteger(imagesMetadata[index].height),
+          width: validate.isPositiveInteger(imagesMetadata[index].width),
+          originalFileName: image.filename,
+          thumbnail: thumbsProps[index]
+        }));
+
+        // Now create the mongoose objects
+        if (thumbsProps.length !== imageProps.length) {
+          reject("Error: Number of images and thumbnails mismatch");
+        }
+
+        imageProps.forEach((props, index) => {
+          const image = new Image(props);
+          const thumbnail = new Image(thumbsProps[index]);
+          image.thumbnail = thumbnail;
+          // If no front image yet, make the first one the front image
+          if (!product.frontImage) {
+            product.frontImage = image;
+          } else {
+            product.images.push(image);
+          }
+          promises.push(thumbnail.save());
+          promises.push(image.save());
+        });
+
+        await Promise.all(promises);
+        resolve(product);
+      } else {
+        reject("Error: Number of images and thumbnails mismatch");
       }
     });
   }
@@ -275,14 +346,18 @@ class ProductRouter {
       return res.status(400).send({ message: "Error: Not a valid ID" });
     }
     try {
-      const product = await Product.findById(id).populate("frontImage").populate("images");
+      const product = await Product.findById(id)
+        .populate("frontImage")
+        .populate("images");
       if (!product) {
         return res
           .status(404)
           .send({ message: "Error: No product with such ID" });
       }
       if (!product.images.length) {
-        return res.status(404).send({ message: "No images found for this product" });
+        return res
+          .status(404)
+          .send({ message: "No images found for this product" });
       }
       const images = product.images;
       images.unshift(product.frontImage);
@@ -302,7 +377,9 @@ class ProductRouter {
     try {
       const image = await Image.findById(id);
       if (!image) {
-        return res.status(404).send({ message: "Error: No image found with such ID" });
+        return res
+          .status(404)
+          .send({ message: "Error: No image found with such ID" });
       }
       return res.send(image);
     } catch (e) {
@@ -313,9 +390,55 @@ class ProductRouter {
   }
 
   private async AddProductImages(req: Request, res: Response) {
+    const id: string = req.params.id;
+    // ignoring, special case
+    // @ts-ignore
+    const images: Express.Multer.File[] = req.files.images;
+    // @ts-ignore
+    const thumbs: Express.Multer.File[] = req.files.thumbs;
 
+    const imagesMetadata: IImageMetaData[] = JSON.parse(
+      req.body.imagesMetadata
+    );
+    const thumbsMetadata: IImageMetaData[] = JSON.parse(
+      req.body.thumbsMetadata
+    );
+
+    try {
+      const updated = await ProductRouter.addImagesToProduct(
+        id,
+        images,
+        imagesMetadata,
+        thumbs,
+        thumbsMetadata
+      );
+      return res.send(updated);
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
   }
-  private async DeleteProductImage(req: Request, res: Response) {}
+  private async DeleteProductImage(req: Request, res: Response) {
+    const id: string = req.params.id;
+    if (!validate.mongoId(id)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
+    }
+    try {
+      const image = Image.findById(id);
+      if (!image) {
+        return res
+          .status(404)
+          .send({ message: "Error: No image with such ID" });
+      }
+      await Image.findByIdAndRemove(id);
+      return res.send({ message: "Image deleted successfully" });
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
+  }
 
   private setupRoutes() {
     this.router.get("/", this.GetProducts);
