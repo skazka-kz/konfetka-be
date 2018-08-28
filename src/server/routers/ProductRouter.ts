@@ -185,7 +185,7 @@ class ProductRouter {
         .populate("images");
       if (!product) {
         return res
-          .status(400)
+          .status(404)
           .send({ message: "Error: No product with such ID found" });
       }
       return res.send(product);
@@ -256,7 +256,7 @@ class ProductRouter {
       const product = Product.findById(id);
       if (!product) {
         return res
-          .status(400)
+          .status(404)
           .send({ message: "Error: No product with such ID" });
       }
       await Product.findByIdAndRemove(id);
@@ -267,6 +267,55 @@ class ProductRouter {
       });
     }
   }
+
+  private async GetAllProductImages(req: Request, res: Response) {
+    const id: string = req.params.id;
+    const imageId: string = req.params.imageId;
+    if (!validate.mongoId(id) || !validate.mongoId(imageId)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
+    }
+    try {
+      const product = await Product.findById(id).populate("frontImage").populate("images");
+      if (!product) {
+        return res
+          .status(404)
+          .send({ message: "Error: No product with such ID" });
+      }
+      if (!product.images.length) {
+        return res.status(404).send({ message: "No images found for this product" });
+      }
+      const images = product.images;
+      images.unshift(product.frontImage);
+      return res.send(images);
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
+  }
+
+  private async GetProductImage(req: Request, res: Response) {
+    const id: string = req.params.id;
+    if (!validate.mongoId(id)) {
+      return res.status(400).send({ message: "Error: Not a valid ID" });
+    }
+    try {
+      const image = await Image.findById(id);
+      if (!image) {
+        return res.status(404).send({ message: "Error: No image found with such ID" });
+      }
+      return res.send(image);
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message ? e.message : e
+      });
+    }
+  }
+
+  private async AddProductImages(req: Request, res: Response) {
+
+  }
+  private async DeleteProductImage(req: Request, res: Response) {}
 
   private setupRoutes() {
     this.router.get("/", this.GetProducts);
@@ -282,6 +331,20 @@ class ProductRouter {
     );
     this.router.put("/:id", requireEditorRights, this.UpdateProduct);
     this.router.delete("/:id", requireEditorRights, this.DeleteProduct);
+
+    // Product Images routes
+    this.router.get("/:id/images", this.GetAllProductImages);
+    this.router.get("/images/:id", this.GetProductImage);
+    this.router.post(
+      "/:id/images",
+      requireEditorRights,
+      upload.fields([
+        { name: "images", maxCount: 10 },
+        { name: "thumbs", maxCount: 10 }
+      ]),
+      this.AddProductImages
+    );
+    this.router.delete("/:id/images/:imageId", this.DeleteProductImage);
   }
 }
 
