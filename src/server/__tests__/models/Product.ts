@@ -80,6 +80,7 @@ describe("Test suite for the Product model", () => {
         expect(prod.images.length).toBe(2);
         expect(prod.images[0].path).toBeTruthy();
       });
+      test("GET /products/:id/images gets images of a product", async () => {});
     });
     describe("Protected routes that require authentication", () => {
       beforeAll(async () => {
@@ -244,6 +245,8 @@ describe("Test suite for the Product model", () => {
         expect(putRes.status).toBe(400);
         expect(putRes.body.message).toBe("Error: Not a valid ID");
       });
+      test("POST /products/:id/images uploads and adds images to the product", async () => {});
+      test("DELETE /products/images/:id deletes an image", async () => {});
     });
     describe("Make sure protected setupRoutes are secured", () => {
       test("Non-authenticated requests can't POST, PUR or DELETE /products", async () => {
