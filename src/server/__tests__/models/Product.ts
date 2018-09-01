@@ -245,8 +245,67 @@ describe("Test suite for the Product model", () => {
         expect(putRes.status).toBe(400);
         expect(putRes.body.message).toBe("Error: Not a valid ID");
       });
-      test("POST /products/:id/images uploads and adds images to the product", async () => {});
-      test("DELETE /products/images/:id deletes an image", async () => {});
+      test("POST /products/:id/images uploads and adds images to the product", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const product = createSampleProduct();
+        await product.save();
+
+        const files = ["src/server/__tests__/assets/sample1.jpg"];
+        const filesMetadata: IImageMetaData[] = [
+          {
+            height: 183,
+            width: 275,
+            title: "A little bird",
+            size: 1337
+          }
+        ];
+
+        const req = request
+          .post(`/api/v1/products/${product._id}/images`)
+          .field("imagesMetadata", JSON.stringify(filesMetadata))
+          .field("thumbsMetadata", JSON.stringify(filesMetadata))
+          .attach("images", files[0])
+          .attach("thumbs", files[0]);
+        req.cookies = cookies;
+        const response = await req;
+
+        expect(response.status).toBe(200);
+        expect(response.body._id).toBe(product.id);
+        expect(response.body.frontImage).toBeTruthy();
+        expect(response.body.frontImage.height).toBe(filesMetadata[0].height);
+      });
+      test("DELETE /products/images/:id deletes an image", async () => {
+        const loginRes = await request
+          .post("/api/v1/auth/login")
+          .send(editorCredentials);
+        expect(loginRes.status).toBe(200);
+        const cookies = loginRes.header["set-cookie"];
+
+        const product = createSampleProduct();
+        product.frontImage = createSampleImage();
+        product.images = [createSampleImage(), createSampleImage()];
+        await Promise.all([
+          product.save(),
+          product.frontImage.save(),
+          product.images[0].save(),
+          product.images[1].save()
+        ]);
+        const idToDelete = product.images[1]._id;
+
+        const req = request.delete(`/api/v1/products/images/${idToDelete}`);
+        req.cookies = cookies;
+        const response = await req;
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe("Image deleted successfully");
+
+        const loaded = await Image.findById(idToDelete);
+        expect(loaded).toBeFalsy();
+      });
     });
     describe("Make sure protected setupRoutes are secured", () => {
       test("Non-authenticated requests can't POST, PUR or DELETE /products", async () => {

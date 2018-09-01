@@ -467,7 +467,7 @@ class ProductRouter {
       ]),
       this.AddProductImages
     );
-    this.router.delete("/:id/images/:imageId", this.DeleteProductImage);
+    this.router.delete("/images/:id", this.DeleteProductImage);
   }
 }
 
