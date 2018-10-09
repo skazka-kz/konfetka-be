@@ -1,1 +1,1 @@
-Refactored site for Konfetka, work in progress
+Back-end for the upcoming konfetka.kz site. Work in progress
