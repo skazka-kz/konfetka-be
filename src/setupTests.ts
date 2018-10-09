@@ -2,7 +2,7 @@ import { configure } from "enzyme";
 import * as Adapter from "enzyme-adapter-react-16";
 import * as mongoose from "mongoose";
 import keys from "../config/keys";
-import logger from "./server/helpers/Logger";
+import logger from "./helpers/Logger";
 
 jest.setTimeout(30000);
 

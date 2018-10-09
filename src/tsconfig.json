@@ -10,5 +10,7 @@
     "moduleResolution": "node",
     "types": ["node"]
   },
-  "files": ["./index.ts"]
+  "files": [
+    "./index.ts"
+  ]
 }

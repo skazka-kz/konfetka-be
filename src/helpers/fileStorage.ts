@@ -1,7 +1,7 @@
 import * as multer from "multer";
 import * as path from "path";
 import * as uniqid from "uniqid";
-import config from "../../../config/keys";
+import config from "../../config/keys";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
