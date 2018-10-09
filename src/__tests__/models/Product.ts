@@ -106,9 +106,9 @@ describe("Test suite for the Product model", () => {
         };
 
         const files = [
-          "src/server/__tests__/assets/sample1.jpg",
-          "src/server/__tests__/assets/sample2.jpg",
-          "src/server/__tests__/assets/sample3.jpg"
+          "src/__tests__/assets/sample1.jpg",
+          "src/__tests__/assets/sample2.jpg",
+          "src/__tests__/assets/sample3.jpg"
         ];
         const filesMetadata: IImageMetaData[] = [
           {
@@ -255,7 +255,7 @@ describe("Test suite for the Product model", () => {
         const product = createSampleProduct();
         await product.save();
 
-        const files = ["src/server/__tests__/assets/sample1.jpg"];
+        const files = ["src/__tests__/assets/sample1.jpg"];
         const filesMetadata: IImageMetaData[] = [
           {
             height: 183,

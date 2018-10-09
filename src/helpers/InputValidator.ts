@@ -1,5 +1,3 @@
-import { IProductCategoryDocument } from "../interfaces/ProductCategoryDocument";
-import ProductCategory from "../models/ProductCategory";
 import ProductValidator from "./ProductValidator";
 
 class InputValidator {
