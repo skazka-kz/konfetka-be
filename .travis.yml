@@ -2,6 +2,9 @@ language: node
 node_js:
   - "node"
   - "lts/*"
+services:
+  - redis-server
+  - mongodb
 cache:
   yarn: true
   directories:
