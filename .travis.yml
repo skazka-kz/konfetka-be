@@ -1,0 +1,9 @@
+language: node
+node_js:
+  - "node"
+  - "lts/*"
+cache:
+  yarn: true
+  directories:
+  - "node_modules"
+
