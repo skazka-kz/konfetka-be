@@ -8,9 +8,9 @@ services:
 cache:
   yarn: true
   directories:
-  - "node_modules"
+    - "node_modules"
 branches:
   only:
-  - master
-  - production
-  - development
+    - master
+    - production
+    - development
