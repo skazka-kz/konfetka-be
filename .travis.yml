@@ -5,6 +5,8 @@ node_js:
 services:
   - redis-server
   - mongodb
+script:
+  - "yarn run test"
 cache:
   yarn: true
   directories:
